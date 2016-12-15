@@ -6,7 +6,7 @@ defmodule Football.Router do
     plug :fetch_session
     plug :fetch_flash
     plug :protect_from_forgery
-    plug :put_secure_browser_headers
+    plug :put_secure_browser_headers, %{"x-frame-options" => "ALLOW-FROM https://vk.com/"}
   end
 
   pipeline :api do
