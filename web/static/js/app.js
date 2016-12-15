@@ -18,4 +18,15 @@ import "phoenix_html"
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
 
-// import socket from "./socket"
+import socket from "./socket"
+import MainLobby from "./main_lobby"
+
+function handleDOMContentLoaded() {
+  //Ad hoc way to detect if MainLobby page is loaded right now
+  let mainLobbyElement = document.getElementById("MainLobby")
+  if (!mainLobbyElement) return
+
+  MainLobby.init(socket)
+}
+
+window.addEventListener('DOMContentLoaded', handleDOMContentLoaded, false);

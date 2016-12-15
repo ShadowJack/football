@@ -1,7 +1,15 @@
 defmodule Football.PageController do
   use Football.Web, :controller
 
+  def index(conn, %{"viewer_id" => user_id}) do
+    conn
+    |> Football.Authentication.assign_token(user_id)
+    |> render("index.html")
+  end
+
   def index(conn, _params) do
-    render conn, "index.html"
+    conn
+    |> put_status(:unauthorized)
+    |> render(Football.ErrorView, "301.html")
   end
 end
