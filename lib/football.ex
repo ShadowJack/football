@@ -12,6 +12,7 @@ defmodule Football do
       supervisor(Football.Repo, []),
       # Start the endpoint when the application starts
       supervisor(Football.Endpoint, []),
+      worker(Football.LobbyListAgent, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

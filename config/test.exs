@@ -17,3 +17,13 @@ config :football, Football.Repo,
   database: "football_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+# Configure guardian authentication
+config :guardian, Guardian,
+  allowed_algos: ["HS512"],
+  verify_module: Guardian.JWT,
+  issuer: "Football",
+  ttl: { 30, :days },
+  verify_issuer: true,
+  secret_key: "test private key",
+  serializer: Football.GuardianSerializer
