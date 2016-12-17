@@ -14,9 +14,10 @@ defmodule Football.LobbyListAgent do
 
   @doc """
   Add new game lobby with specific `name`.
-  Name is checked for uniqueness.
+  Name is required and checked for uniqueness.
   """
   @spec add_lobby(String.t) :: :ok | {:error, String.t}
+  def add_lobby(""), do: {:error, "Lobby name can't be empty"}
   def add_lobby(name) do
     if exists?(name) do
       {:error, "Lobby with this name already exists"}
@@ -35,11 +36,12 @@ defmodule Football.LobbyListAgent do
   end
 
   @doc """
-  Gets the list of all lobbies ordered starting from the last added
+  Gets the list of all lobbies ordered starting from the first added
   """
   @spec get_all_lobbies() :: [String.t]
   def get_all_lobbies() do
     Agent.get(__MODULE__, &(&1))
+    |> Enum.reverse()
   end
 
   @doc """

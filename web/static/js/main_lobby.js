@@ -4,14 +4,17 @@ let MainLobby = {
 
     let lobbyChannel = socket.channel("main_lobby:lobby", {})
 
+    let lobbiesContainer = $("#LobbiesContainer")
+
+    // Handle message that new lobby was created
+    lobbyChannel.on("lobby:added", ({name}) => this.renderLobby(name, lobbiesContainer))
+
+    // Setup event handlers
+    $("#AddLobbyBtn").click(e => this.onAddLobbyClick(e, lobbyChannel))
+
+    // Join the channel
     lobbyChannel.join()
-      .receive("ok", ({game_lobbies}) => { 
-        console.log("Joined successfully", game_lobbies) 
-        let lobbiesContainer = document.getElementById("LobbiesContainer")
-        console.log("container: ", lobbiesContainer)
-        game_lobbies.forEach(lobbyName => this.renderLobby(lobbyName, lobbiesContainer))
-        
-      })
+      .receive("ok", ({game_lobbies}) => game_lobbies.forEach(lobbyName => this.renderLobby(lobbyName, lobbiesContainer)))
       .receive("error", resp => { console.log("User is not authenticated", resp) })
   },
 
@@ -20,8 +23,21 @@ let MainLobby = {
 
     template.innerHTML = name;
 
-    container.appendChild(template);
+    container.prepend(template);
   },
+
+  onAddLobbyClick(evt, channel) {
+    evt.preventDefault()
+    let newLobbyNameInput = $("#LobbyNameInput")
+    channel.push("lobby:add", {name: newLobbyNameInput.val()}, 5000)
+      .receive("ok", msg => console.log("lobby:add response", msg)) 
+      .receive("error", msg => {
+        let errorMessage = document.getElementsByClassName("alert-danger")[0]
+        errorMessage.innerHTML = msg.reason
+        // TODO: make error message able to disable =)
+      })
+    newLobbyNameInput.val("")
+  }
 }
 
 export default MainLobby

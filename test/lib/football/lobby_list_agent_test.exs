@@ -20,12 +20,16 @@ defmodule Football.LobbyListAgentTest do
     assert {:error, _reason} = add_lobby("test_lobby")
   end
 
-  test "it lists all lobbies in reverse order" do
+  test "it doesn't add a lobby with empty name" do
+    assert {:error, _reason} = add_lobby("")
+  end
+
+  test "it lists all lobbies" do
     add_lobby("test_lobby1")
     add_lobby("test_lobby2")
     add_lobby("test_lobby3")
     
-    assert get_all_lobbies() == ["test_lobby3", "test_lobby2", "test_lobby1"]
+    assert get_all_lobbies() == ["test_lobby1", "test_lobby2", "test_lobby3"]
   end
 
   test "it removes lobby from LobbyList" do

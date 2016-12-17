@@ -1,8 +1,11 @@
-TODO: 
-1. add a generic way to init a page with view-specific js
-
 <div id="MainLobby">
   <h1>Main lobby</h1>
   <ul id="LobbiesContainer">
   </ul>
+
+  <label for="New_lobby_name">New lobby name</label>
+  <input type="text" name="New_lobby_name" value="" id="LobbyNameInput"/>
+  
+  <button id="AddLobbyBtn">Create</button>
+  
 </div>

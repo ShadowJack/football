@@ -16,18 +16,9 @@ defmodule Football.MainLobbyChannelTest do
     assert is_list(lobbies)
   end
 
-  # test "ping replies with status ok", %{socket: socket} do
-  #   ref = push socket, "ping", %{"hello" => "there"}
-  #   assert_reply ref, :ok, %{"hello" => "there"}
-  # end
-  # 
-  # test "shout broadcasts to main_lobby:lobby", %{socket: socket} do
-  #   push socket, "shout", %{"hello" => "all"}
-  #   assert_broadcast "shout", %{"hello" => "all"}
-  # end
-  # 
-  # test "broadcasts are pushed to the client", %{socket: socket} do
-  #   broadcast_from! socket, "broadcast", %{"some" => "data"}
-  #   assert_push "broadcast", %{"some" => "data"}
-  # end
+  test "adds a new lobby and updates lobbies list for all users", %{socket: socket} do
+    push(socket, "lobby:add", %{"name" => "new_lobby" })
+    assert_broadcast("lobby:added", %{"name" => "new_lobby"})
+    assert Football.LobbyListAgent.exists?("new_lobby")
+  end
 end
