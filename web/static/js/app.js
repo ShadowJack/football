@@ -23,7 +23,7 @@ import MainLobby from "./main_lobby"
 
 function handleDOMContentLoaded() {
   //Ad hoc way to detect if MainLobby page is loaded right now
-  let mainLobbyElement = document.getElementById("MainLobby")
+  let mainLobbyElement = $("#MainLobby")
   if (!mainLobbyElement) return
 
   MainLobby.init(socket)

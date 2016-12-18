@@ -11,10 +11,17 @@ let MainLobby = {
 
     // Setup event handlers
     $("#AddLobbyBtn").click(e => this.onAddLobbyClick(e, lobbyChannel))
+    $(".close").click(e => {
+      let alert = $(e.currentTarget).parent()
+      alert.hide()
+    })
 
     // Join the channel
     lobbyChannel.join()
-      .receive("ok", ({game_lobbies}) => game_lobbies.forEach(lobbyName => this.renderLobby(lobbyName, lobbiesContainer)))
+      .receive("ok", ({game_lobbies}) => {
+        lobbiesContainer.empty()
+        game_lobbies.forEach(lobbyName => this.renderLobby(lobbyName, lobbiesContainer))
+      })
       .receive("error", resp => { console.log("User is not authenticated", resp) })
   },
 
@@ -32,9 +39,8 @@ let MainLobby = {
     channel.push("lobby:add", {name: newLobbyNameInput.val()}, 5000)
       .receive("ok", msg => console.log("lobby:add response", msg)) 
       .receive("error", msg => {
-        let errorMessage = document.getElementsByClassName("alert-danger")[0]
-        errorMessage.innerHTML = msg.reason
-        // TODO: make error message able to disable =)
+        $(".alert-danger .alert-text").text(msg.reason)
+        $(".alert-danger").show()
       })
     newLobbyNameInput.val("")
   }

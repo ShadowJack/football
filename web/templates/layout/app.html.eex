@@ -12,8 +12,18 @@
   </head>
 
   <body>
-    <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
-    <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
+    <p class="alert alert-info" role="alert">
+      <button type="button" class="close" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+        <span class="alert-text"></span>
+      </button>
+    </p>
+    <p class="alert alert-danger" role="alert">
+      <button type="button" class="close" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <span class="alert-text"></span>
+    </p>
 
     <main role="main">
       <%= render @view_module, @view_template, assigns %>
