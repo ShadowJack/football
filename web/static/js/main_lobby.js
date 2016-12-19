@@ -7,7 +7,7 @@ let MainLobby = {
     let lobbiesContainer = $("#LobbiesContainer")
 
     // Handle message that new lobby was created
-    lobbyChannel.on("lobby:added", ({name}) => this.renderLobby(name, lobbiesContainer))
+    lobbyChannel.on("lobby:added", (lobby) => this.renderLobby(lobby, lobbiesContainer))
 
     // Setup event handlers
     $("#AddLobbyBtn").click(e => this.onAddLobbyClick(e, lobbyChannel))
@@ -20,15 +20,17 @@ let MainLobby = {
     lobbyChannel.join()
       .receive("ok", ({game_lobbies}) => {
         lobbiesContainer.empty()
-        game_lobbies.forEach(lobbyName => this.renderLobby(lobbyName, lobbiesContainer))
+        game_lobbies.forEach(lobby => this.renderLobby(lobby, lobbiesContainer))
       })
       .receive("error", resp => { console.log("User is not authenticated", resp) })
   },
 
-  renderLobby(name, container) {
-    let template = document.createElement("li");
-
-    template.innerHTML = name;
+  renderLobby(lobby, container) {
+    // TODO: put link to the game lobby
+    let template = $("<li></li>");
+    template.attr("data-id", lobby.id)
+    template.attr("data-created-at", lobby.created_at)
+    template.text(lobby.name);
 
     container.prepend(template);
   },

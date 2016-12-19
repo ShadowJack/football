@@ -1,7 +1,7 @@
 defmodule Football.MainLobbyChannelTest do
   use Football.ChannelCase
 
-  alias Football.MainLobbyChannel
+  alias Football.{MainLobbyChannel, Lobby, Lobby.LobbiesManager}
 
   setup do
     {:ok, jwt, _} = Guardian.encode_and_sign("test_user")
@@ -17,8 +17,9 @@ defmodule Football.MainLobbyChannelTest do
   end
 
   test "adds a new lobby and updates lobbies list for all users", %{socket: socket} do
-    push(socket, "lobby:add", %{"name" => "new_lobby" })
-    assert_broadcast("lobby:added", %{"name" => "new_lobby"})
-    assert Football.LobbyListAgent.exists?("new_lobby")
+    ref = push(socket, "lobby:add", %{"name" => "new_lobby"})
+    assert_reply(ref, :ok)
+    assert %Lobby{id: id, name: "new_lobby", created_at: created_at} = LobbiesManager.get_all_lobbies() |> List.first()
+    assert_broadcast("lobby:added", %{"id" => ^id, "name" => "new_lobby", "created_at" => ^created_at})
   end
 end
