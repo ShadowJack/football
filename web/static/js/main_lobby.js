@@ -1,6 +1,9 @@
 let MainLobby = {
-  init (socket) {
-    socket.connect({guardian_token: window.guardian_token})
+  guardian_token: "",
+
+  init (socket, token) {
+    this.guardian_token = token
+    socket.connect({guardian_token: token})
 
     let lobbyChannel = socket.channel("main_lobby:lobby", {})
 
@@ -26,11 +29,9 @@ let MainLobby = {
   },
 
   renderLobby(lobby, container) {
-    // TODO: put link to the game lobby
     let template = $("<li></li>");
-    template.attr("data-id", lobby.id)
     template.attr("data-created-at", lobby.created_at)
-    template.text(lobby.name);
+    template.html(this.getLinkToLobby(lobby));
 
     container.prepend(template);
   },
@@ -45,6 +46,10 @@ let MainLobby = {
         $(".alert-danger").show()
       })
     newLobbyNameInput.val("")
+  },
+
+  getLinkToLobby(lobby) {
+    return `<a href="/${lobby.id}?token=${this.guardian_token}">${lobby.name}</a>`
   }
 }
 

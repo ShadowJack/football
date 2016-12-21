@@ -20,13 +20,20 @@ import "phoenix_html"
 
 import socket from "./socket"
 import MainLobby from "./main_lobby"
+import GameLobby from "./game_lobby"
 
 function handleDOMContentLoaded() {
   //Ad hoc way to detect if MainLobby page is loaded right now
   let mainLobbyElement = $("#MainLobby")
-  if (!mainLobbyElement) return
+  if (mainLobbyElement.length) {
+    MainLobby.init(socket, window.guardian_token)
+    return
+  }
 
-  MainLobby.init(socket)
+  if (window.lobbyId) {
+    GameLobby.init(socket, window.guardian_token, window.lobbyId)
+  }
+
 }
 
 window.addEventListener('DOMContentLoaded', handleDOMContentLoaded, false);

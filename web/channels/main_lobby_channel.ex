@@ -1,4 +1,9 @@
 defmodule Football.MainLobbyChannel do
+  @moduledoc """
+  Channel that manages operations in the
+  main lobby
+  """
+
   use Football.Web, :channel
 
   alias Football.Lobby.LobbiesManager

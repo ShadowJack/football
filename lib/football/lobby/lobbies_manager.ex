@@ -36,6 +36,28 @@ defmodule Football.Lobby.LobbiesManager do
   end
 
   @doc """
+  Returns lobby with this `id`
+  """
+  @spec get_lobby(String.t) :: {:ok, Lobby.t} | {:error, String.t}
+  def get_lobby(id) when is_binary(id) do
+    id
+    |> String.to_integer()
+    |> get_lobby()
+  end
+
+  @spec get_lobby(Lobby.id) :: {:ok, Lobby.t} | {:error, String.t}
+  def get_lobby(id) do
+    lobby = Agent.get(__MODULE__, fn {list, _cur_id} -> 
+      Enum.find(list, fn x -> x.id == id end) 
+    end)
+    if lobby != nil do
+      {:ok, lobby}
+    else
+      {:error, "Lobby with this id is not found"}
+    end
+  end
+
+  @doc """
   Checks if lobby with this `id` already exists
   """
   @spec exists?(Lobby.id) :: boolean

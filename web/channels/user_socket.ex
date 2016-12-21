@@ -4,6 +4,7 @@ defmodule Football.UserSocket do
 
   ## Channels
   channel "main_lobby:*", Football.MainLobbyChannel
+  channel "game_lobby:*", Football.GameLobbyChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket

@@ -1,0 +1,6 @@
+<div id="LobbyName"></div>
+<ul id="UsersList"></ul>
+
+<script>
+  window.lobbyId = <%= @lobby_id %>
+</script>

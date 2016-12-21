@@ -9,6 +9,7 @@ defmodule Football.MainLobbyChannelTest do
       socket("socket", %{guardian_token: jwt})
       |> subscribe_and_join(MainLobbyChannel, "main_lobby:lobby")
 
+    on_exit(fn -> LobbiesManager.remove_all() end)
     {:ok, socket: socket, lobbies: lobbies}
   end
 

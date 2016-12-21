@@ -49,4 +49,12 @@ defmodule Football.LobbyListAgentTest do
   test "it returns error when asked to remove lobby that doesn't exist" do
     assert {:error, _reason} = remove_lobby(1111)
   end
+
+  test "it returns a lobby by id" do
+    {:ok, lobby} = add_lobby("test_lobby")
+
+    assert {:ok, lobby} = get_lobby(lobby.id)
+    assert lobby.name == "test_lobby"
+    assert {:error, reason} = get_lobby(lobby.id + 1)
+  end
 end
