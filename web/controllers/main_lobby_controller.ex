@@ -1,4 +1,4 @@
-defmodule Football.PageController do
+defmodule Football.MainLobbyController do
   use Football.Web, :controller
 
   def index(conn, %{"viewer_id" => user_id}) do

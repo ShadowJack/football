@@ -1,4 +1,4 @@
-defmodule Football.PageControllerTest do
+defmodule Football.MainLobbyControllerTest do
   use Football.ConnCase
 
   test "GET /", %{conn: conn} do

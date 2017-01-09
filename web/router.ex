@@ -16,7 +16,7 @@ defmodule Football.Router do
   scope "/", Football do
     pipe_through :browser # Use the default browser stack
 
-    get "/", PageController, :index
+    get "/", MainLobbyController, :index
     get "/:lobby_id", GameLobbyController, :index
   end
 
