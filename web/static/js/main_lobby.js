@@ -13,7 +13,15 @@ let MainLobby = {
     lobbyChannel.on("lobby:added", (lobby) => this.renderLobby(lobby, lobbiesContainer))
 
     // Setup event handlers
-    $("#AddLobbyBtn").click(e => this.onAddLobbyClick(e, lobbyChannel))
+    $("#AddLobbyBtn").click(e => {
+      e.preventDefault()
+      this.addLobby(lobbyChannel)
+    })
+    $("#LobbyNameInput").keyup(e => {
+      if (e.keyCode == 13) {
+        this.addLobby(lobbyChannel)
+      }
+    })
     $(".close").click(e => {
       let alert = $(e.currentTarget).parent()
       alert.hide()
@@ -36,8 +44,7 @@ let MainLobby = {
     container.prepend(template);
   },
 
-  onAddLobbyClick(evt, channel) {
-    evt.preventDefault()
+  addLobby(channel) {
     let newLobbyNameInput = $("#LobbyNameInput")
     channel.push("lobby:add", {name: newLobbyNameInput.val()}, 5000)
       .receive("ok", msg => console.log("lobby:add response", msg)) 
