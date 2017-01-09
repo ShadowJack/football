@@ -6,8 +6,6 @@ defmodule Football.GameLobbyChannel do
 
   use Football.Web, :channel
 
-
-  # TODO: use Presence to send info about connected users
   @doc """
   Connect to specific lobby by `lobby_id`
   """

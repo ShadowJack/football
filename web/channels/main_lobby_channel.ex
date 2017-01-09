@@ -4,12 +4,15 @@ defmodule Football.MainLobbyChannel do
   main lobby
   """
 
+  require Logger
+
   use Football.Web, :channel
 
   alias Football.Lobby.LobbiesManager
 
   def join("main_lobby:lobby", _payload, socket) do
     resp = %{game_lobbies: LobbiesManager.get_all_lobbies()}
+    Logger.info("User joined: #{Guardian.Phoenix.Socket.current_resource(socket)}")
     {:ok, resp, socket}
   end
 

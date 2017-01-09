@@ -66,8 +66,7 @@ defmodule Football.Lobby.LobbiesManager do
       Enum.any?(list, fn x -> x.id == id end) 
     end)
   end
-
-  @doc """
+@doc """
   Checks if lobby with this `name` already exists
   """
   @spec exists?(String.t) :: boolean

@@ -55,6 +55,6 @@ defmodule Football.LobbyListAgentTest do
 
     assert {:ok, lobby} = get_lobby(lobby.id)
     assert lobby.name == "test_lobby"
-    assert {:error, reason} = get_lobby(lobby.id + 1)
+    assert {:error, _reason} = get_lobby(lobby.id + 1)
   end
 end

@@ -1,16 +1,22 @@
 defmodule Football.MainLobbyChannelTest do
   use Football.ChannelCase
 
-  alias Football.{MainLobbyChannel, Lobby, Lobby.LobbiesManager}
+  alias Football.{UserSocket, MainLobbyChannel}
+
+  @game_lobby_name Atom.to_string(__MODULE__)
 
   setup do
-    {:ok, jwt, _} = Guardian.encode_and_sign("test_user")
-    {:ok, %{game_lobbies: lobbies}, socket} =
-      socket("socket", %{guardian_token: jwt})
+    {:ok, jwt, _} = Guardian.encode_and_sign("test_user", :access)
+    {:ok, socket} = connect(UserSocket, %{"guardian_token" => jwt})
+    {:ok, %{game_lobbies: lobbies}, authed_socket} =
+      socket
       |> subscribe_and_join(MainLobbyChannel, "main_lobby:lobby")
 
-    on_exit(fn -> LobbiesManager.remove_all() end)
-    {:ok, socket: socket, lobbies: lobbies}
+    on_exit fn -> 
+      Guardian.Phoenix.Socket.sign_out(authed_socket)
+    end
+
+    {:ok, socket: authed_socket, lobbies: lobbies}
   end
 
   test "list of lobbies is returned when user has joined channel", %{lobbies: lobbies} do
@@ -18,9 +24,8 @@ defmodule Football.MainLobbyChannelTest do
   end
 
   test "adds a new lobby and updates lobbies list for all users", %{socket: socket} do
-    ref = push(socket, "lobby:add", %{"name" => "new_lobby"})
+    ref = push(socket, "lobby:add", %{"name" => @game_lobby_name})
     assert_reply(ref, :ok)
-    assert %Lobby{id: id, name: "new_lobby", created_at: created_at} = LobbiesManager.get_all_lobbies() |> List.first()
-    assert_broadcast("lobby:added", %{"id" => ^id, "name" => "new_lobby", "created_at" => ^created_at})
+    assert_broadcast("lobby:added", %{"id" => _id, "name" => @game_lobby_name, "created_at" => _created_at})
   end
 end
