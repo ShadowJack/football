@@ -1,10 +1,3 @@
-const configuration = {
-  'iceCandidatePoolSize': 8,
-  'iceServers': [{
-    'urls': ['stun:stun.wtfismyip.com']
-  }]
-}
-
 let GameLobby = {
   guardianToken: "",
   connections: [],
