@@ -10,11 +10,12 @@ defmodule Football.GameLobbyChannel do
   Connect to specific lobby by `lobby_id`
   """
   def join("game_lobby:" <> lobby_id, _payload, socket) do
-    resp = case Football.Lobby.LobbiesManager.get_lobby(lobby_id) do
+    case Football.Lobby.LobbiesManager.get_lobby(lobby_id) do
       {:ok, lobby} -> 
-        send(self, :after_join)
+        send(self(), :after_join)
         {:ok, %{lobby: lobby}, socket} 
-      {:error, reason} -> {:error, %{reason: reason}}
+      {:error, reason} -> 
+        {:error, %{reason: reason}}
     end
   end
 

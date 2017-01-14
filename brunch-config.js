@@ -6,7 +6,8 @@ exports.config = {
       order: {
         before: [
           "web/static/vendor/js/jquery-3.1.1.js",
-          "web/static/vendor/js/bootstrap.js"
+          "web/static/vendor/js/bootstrap.js",
+          "web/static/vendor/js/adapter.js"
         ]
       }
     },

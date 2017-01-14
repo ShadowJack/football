@@ -3,4 +3,5 @@
 
 <script>
   window.lobbyId = <%= @lobby_id %>
+  window.userId = <%= @user_id %>
 </script>
