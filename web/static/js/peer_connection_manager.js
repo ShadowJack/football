@@ -20,13 +20,19 @@ const PEER_CONN_CONFIG = {
 // Abstraction over WebRTC that handles connection to peers
 // via phoenix channel as signaling server
 export class PeerConnectionManager {
+
+  ///
+  // Receives a phoenix channel that will be used for signalling
+  // and an array of peer objects: 
+  // {id: userId, connection: RTCPeerConnection, dataChannel: RTCDataChannel}
   constructor(signallingChannel, peers) {
     this.signallingChannel = signallingChannel
     this.peers = peers
 
     this.signallingChannel.on("signalling:sdp", onOfferReceived)
     this.signallingChannel.on("signalling:ice", ({from, iceCandidate}) => {
-      //TODO: find a player, if exists, otherwise - create a new one and add a new candidate
+      let peer = getOrCreatePeer(from)
+      peer.connection.addIceCandidate(new RTCIceCandidate(iceCandidate))
     })
   }
 
@@ -35,20 +41,17 @@ export class PeerConnectionManager {
   // Returns {peerConnection, dataChannel}
   connect(peerId) {
     let peer = createPeer(peerId)
-    this.peers.push(peer)
     peer.connection.createOffer(peerId)
       .then(desc => this.onLocalDescCreated(desc, peer.connection))
       .catch((error) => console.log(`Error connecting to peer(${this.peerId}): ${error}`))
+ 
+    // Create an RTCDataChannel
+    let dataChannel = peer.connection.createDataChannel("DataChannel", {ordered: true, maxPacketLifeTime: 1000, maxRetransmits: 3})
+    peer.dataChannel = dataChannel
   }
 
   onOfferReceived({from, sdp}) => {
-    // Find a player connection
-    // If player connection doesn't exist yet - create a new one
-    let peer = this.peers.find(peer => peer.id === from)
-    if (!peer) {
-      peer = this.createPeer(from)
-      peers.push(peer)
-    }
+    let peer = getOrCreatePeer(from)
 
     peer.connection.setRemoteDescription(new RTCSessionDescription(sdp))
       .then(() => {
@@ -62,9 +65,35 @@ export class PeerConnectionManager {
   }
 
   createPeer(peerId) {
-    // TODO: add ice event handlers
+    // Create a connection and peer objects
     let conn = new RTCPeerConnection(PEER_CONN_CONFIG)
-    return {id: peerId, connection: conn, dataChannel: null}
+    let peer =  {id: peerId, connection: conn, dataChannel: null}
+
+    // Send ice candidate to the peer once it's received from the STUN server
+    conn.onicecandidate = (evt) => {
+      if (evt.candidate) {
+        this.signallingChannel.push("signalling:ice", {peerId, "candidate": evt.candidate})
+      }
+    }
+
+    // Add RTCDataChannel to peer object once it's created and opened
+    conn.ondatachannel = (evt) => {
+      evt.channel.onopen = () => peer.dataChannel = evt.channel
+    }
+
+
+    this.peers.push(peer)
+    return peer
+  }
+
+  // Find a peer by id or create a new one
+  getOrCreatePeer(peerId) {
+    // If player connection doesn't exist yet - create a new one
+    let peer = this.peers.find(peer => peer.id === from)
+    if (peer) {
+      return peer
+    }
+    return this.createPeer(from)
   }
 
   ///
@@ -73,7 +102,7 @@ export class PeerConnectionManager {
     connection
       .setLocalDescription(desc)
       .then(() => {
-        signallingChannel.push("signalling:sdp", {peerId, connection.localDescription})
+        signallingChannel.push("signalling:sdp", {peerId, "desc": connection.localDescription})
       })
   }
 }
