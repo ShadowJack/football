@@ -19,49 +19,56 @@ const PEER_CONN_CONFIG = {
 
 // Abstraction over WebRTC that handles connection to peers
 // via phoenix channel as signaling server
-export class PeerConnectionManager {
+export default class PeerConnectionManager {
 
   ///
-  // Receives a phoenix channel that will be used for signalling
+  // Receives id of current user, 
+  // a phoenix channel that will be used for signalling
   // and an array of peer objects: 
   // {id: userId, connection: RTCPeerConnection, dataChannel: RTCDataChannel}
-  constructor(signallingChannel, peers) {
+  constructor(currentUserId, signallingChannel, peers) {
+    this.currentUserId = currentUserId
     this.signallingChannel = signallingChannel
     this.peers = peers
 
-    this.signallingChannel.on("signalling:sdp", onOfferReceived)
-    this.signallingChannel.on("signalling:ice", ({from, iceCandidate}) => {
-      let peer = getOrCreatePeer(from)
+    this.signallingChannel.on("signalling:sdp", data => this.onOfferReceived(data))
+    this.signallingChannel.on("signalling:ice", ({to, from, iceCandidate}) => {
+      // Handle only events that are intended for us
+      if (this.currentUserId !== to) return
+
+      let peer = this.getOrCreatePeer(from)
       peer.connection.addIceCandidate(new RTCIceCandidate(iceCandidate))
     })
   }
 
-  ///
-  // Attempts to connect to remote peer by peerId
+  /// Attempts to connect to remote peer by peerId
   // Returns {peerConnection, dataChannel}
   connect(peerId) {
-    let peer = createPeer(peerId)
-    peer.connection.createOffer(peerId)
-      .then(desc => this.onLocalDescCreated(desc, peer.connection))
-      .catch((error) => console.log(`Error connecting to peer(${this.peerId}): ${error}`))
+    let peer = this.createPeer(peerId)
+    peer.connection.createOffer()
+      .then(desc => this.onLocalDescCreated(peer.id, desc, peer.connection))
+      .catch((error) => console.log(`Error connecting to peer(${peerId}): ${error}`))
  
     // Create an RTCDataChannel
-    let dataChannel = peer.connection.createDataChannel("DataChannel", {ordered: true, maxPacketLifeTime: 1000, maxRetransmits: 3})
-    peer.dataChannel = dataChannel
+    let dataChannel = peer.connection.createDataChannel("GameDataChannel", {ordered: true, maxPacketLifeTime: 1000, maxRetransmits: 3})
+    console.log("Data channel created!")
+    dataChannel.onopen = (evt) => peer.dataChannel = dataChannel
   }
 
-  onOfferReceived({from, sdp}) => {
-    let peer = getOrCreatePeer(from)
+  onOfferReceived({to, from, sdp}) {
+    // Handle only events that are intended for us
+    if (to != this.currentUserId) return
+
+    let peer = this.getOrCreatePeer(from)
 
     peer.connection.setRemoteDescription(new RTCSessionDescription(sdp))
       .then(() => {
-        // if we received an offer, we need to answer
+        // If we received an offer, we need to answer
         if (peer.connection.remoteDescription.type === 'offer') {
-          peer.connection.createAnswer().then(desc => this.onLocalDescCreated(desc, peer.connection));
+          peer.connection.createAnswer().then(desc => this.onLocalDescCreated(peer.id, desc, peer.connection));
         }
       })
       .catch(error => console.log(`Error receiving RDP offer from ${from}: ${error}`));
-
   }
 
   createPeer(peerId) {
@@ -78,9 +85,9 @@ export class PeerConnectionManager {
 
     // Add RTCDataChannel to peer object once it's created and opened
     conn.ondatachannel = (evt) => {
+      console.log("Data channel created!")
       evt.channel.onopen = () => peer.dataChannel = evt.channel
     }
-
 
     this.peers.push(peer)
     return peer
@@ -89,20 +96,20 @@ export class PeerConnectionManager {
   // Find a peer by id or create a new one
   getOrCreatePeer(peerId) {
     // If player connection doesn't exist yet - create a new one
-    let peer = this.peers.find(peer => peer.id === from)
+    let peer = this.peers.find(peer => peer.id === peerId)
     if (peer) {
       return peer
     }
-    return this.createPeer(from)
+    return this.createPeer(peerId)
   }
 
   ///
   // Set local description and send an offer to the peer
-  onLocalDescCreated(desc, connection) {
+  onLocalDescCreated(peerId, desc, connection) {
     connection
       .setLocalDescription(desc)
       .then(() => {
-        signallingChannel.push("signalling:sdp", {peerId, "desc": connection.localDescription})
+        this.signallingChannel.push("signalling:sdp", {peerId, "desc": connection.localDescription})
       })
   }
 }

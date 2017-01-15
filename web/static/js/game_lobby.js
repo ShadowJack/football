@@ -1,6 +1,9 @@
+import PeerConnectionManager from "./peer_connection_manager"
+
 let GameLobby = {
   guardianToken: "",
-  connections: [],
+  peers: [],
+  peerConnectionManager: null,
 
   init(socket, token, lobbyId) {
     this.guardianToken = token
@@ -8,6 +11,11 @@ let GameLobby = {
 
     // Create a phoenix channel
     this.gameChannel = socket.channel(`game_lobby:${lobbyId}`, {})
+
+    // Create a PeerConnectionManager for
+    // establishing connections with peers via WebRTC DataChannel
+    this.peerConnectionManager = new PeerConnectionManager(window.userId, this.gameChannel, this.peers)
+
     // Connect to phoenix channel
     this.gameChannel.join()
       .receive("ok", ({lobby}) => {
@@ -15,35 +23,30 @@ let GameLobby = {
       })
       .receive("error", resp => console.log("Cannot connect to game lobby: ", resp))
 
+
     // Handle presence events
     //
 
     // When first list of users is received after connection,
-    // connect to other users and fill `connections` list
-    this.gameChannel.on("presence_state", this.connectToAllUsers)
+    // connect to other users and fill `peers` list
+    this.gameChannel.on("presence_state", (data) => this.connectToAllUsers(data))
 
-    // on new user connected to peer, add it to connections list
+    //TODO: on user disconnected - remove it from connections list
   },
 
-  //TODO: move connection functionality to another object
   connectToAllUsers(usersData) {
-      for(let userId of Object.getOwnPropertyNames(usersData)) {
-        if (userId === window.userId) {
-          continue
-        }
+    if (!this.peerConnectionManager) {
+      console.log("PeerConnectionManager is not instantiated")
+      return;
+    }
 
-        let peerConnection = new RTCPeerConnection(configuration);
-
-        let dataChannel = peerConnection.createDataChannel(`sendDataChannelTo${userId}`);
-
-        peerConnection.onicecandidate = iceCallback1;
-        dataChannel.onopen = onSendChannelStateChange;
-
-        peerConnection
-          .createOffer()
-          .done(this.onDescriptionReceived)
-          .fail(error => console.log(`Can't create session description: ${error}`))
+    for(let userId of Object.getOwnPropertyNames(usersData)) {
+      if (userId == window.userId) {
+        continue
       }
+
+      this.peerConnectionManager.connect(userId)
+    }
   }
 }
 

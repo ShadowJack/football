@@ -24,4 +24,24 @@ defmodule Football.GameLobbyChannel do
     push(socket, "presence_state", Football.Presence.list(socket))
     {:noreply, socket}
   end
+
+  def handle_in("signalling:sdp", %{"peerId" => peerId, "desc" => description}, socket) do
+    payload = %{
+      from: Guardian.Phoenix.Socket.current_resource(socket),
+      to: peerId,
+      sdp: description
+    }
+    broadcast!(socket, "signalling:sdp", payload)
+    {:noreply, socket}
+  end
+
+  def handle_in("signalling:ice", %{"peerId" => peerId, "candidate" => candidate}, socket) do
+    payload = %{
+      from: Guardian.Phoenix.Socket.current_resource(socket),
+      to: peerId,
+      iceCandidate: candidate
+    }
+    broadcast!(socket, "signalling:ice", payload)
+    {:noreply, socket}
+  end
 end
