@@ -23,21 +23,21 @@ let GameLobby = {
       })
       .receive("error", resp => console.log("Cannot connect to game lobby: ", resp))
 
-
     // Handle presence events
     //
 
     // When first list of users is received after connection,
     // connect to other users and fill `peers` list
-    this.gameChannel.on("presence_state", (data) => this.connectToAllUsers(data))
+    this.gameChannel.on("presence_state", data => this.connectToAllUsers(data))
 
-    //TODO: on user disconnected - remove it from connections list
+    // When some user is disconnected - remove it from peers
+    this.gameChannel.on("presence_diff", ({joins, leaves}) => this.onUsersDisconnected(leaves))
   },
 
   connectToAllUsers(usersData) {
     if (!this.peerConnectionManager) {
       console.log("PeerConnectionManager is not instantiated")
-      return;
+      return
     }
 
     for(let userId of Object.getOwnPropertyNames(usersData)) {
@@ -46,6 +46,12 @@ let GameLobby = {
       }
 
       this.peerConnectionManager.connect(userId)
+    }
+  },
+
+  onUsersDisconnected(disconnectedUsers) {
+    for(let userId of Object.getOwnPropertyNames(disconnectedUsers)) {
+      this.peerConnectionManager.disconnect(userId)
     }
   }
 }

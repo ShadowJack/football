@@ -1,20 +1,17 @@
 const PEER_CONN_CONFIG = {
-  iceCandidatePoolSize: 8,
-  // Servers object is taken from 
-  // https://github.com/gutnikov/webrtc-shooter/blob/master/lib/net/peer-connection.js
-  iceServers: [{
-    url: 'stun:stun.l.google.com:19302'
-  },{
-    url: 'stun:stun.anyfirewall.com:3478'
-  },{
-    url: 'turn:turn.bistri.com:80',
-    credential: 'homeo',
-    username: 'homeo'
-  },{
-    url: 'turn:turn.anyfirewall.com:443?transport=tcp',
-    credential: 'webrtc',
-    username: 'webrtc'
-  }]
+  'iceServers': [
+    {
+      urls: [
+        'stun:stun.l.google.com:19302',
+        'stun:stun.bcs2005.net:3478'
+      ]
+    },{
+      urls: 'turn:turn.anyfirewall.com:443?transport=tcp',
+      credential: 'webrtc',
+      username: 'webrtc'
+    }
+  ],
+  'rtcpMuxPolicy': 'require'
 }
 
 // Abstraction over WebRTC that handles connection to peers
@@ -32,32 +29,47 @@ export default class PeerConnectionManager {
     this.peers = peers
 
     this.signallingChannel.on("signalling:sdp", data => this.onOfferReceived(data))
-    this.signallingChannel.on("signalling:ice", ({to, from, iceCandidate}) => {
-      // Handle only events that are intended for us
-      if (this.currentUserId !== to) return
-
-      let peer = this.getOrCreatePeer(from)
-      peer.connection.addIceCandidate(new RTCIceCandidate(iceCandidate))
-    })
+    this.signallingChannel.on("signalling:ice", data => this.onIceCandidateReceived(data))
   }
 
   /// Attempts to connect to remote peer by peerId
-  // Returns {peerConnection, dataChannel}
   connect(peerId) {
     let peer = this.createPeer(peerId)
-    peer.connection.createOffer()
-      .then(desc => this.onLocalDescCreated(peer.id, desc, peer.connection))
-      .catch((error) => console.log(`Error connecting to peer(${peerId}): ${error}`))
- 
+
     // Create an RTCDataChannel
     let dataChannel = peer.connection.createDataChannel("GameDataChannel", {ordered: true, maxPacketLifeTime: 1000, maxRetransmits: 3})
-    console.log("Data channel created!")
-    dataChannel.onopen = (evt) => peer.dataChannel = dataChannel
+    dataChannel.onopen = (evt) => {
+      console.log(`Data channel is opened: ${JSON.stringify(evt)}`)
+      peer.dataChannel = dataChannel
+    }
+
+    // Create RDP offer and send it to peer
+    peer.connection.createOffer()
+      .then(desc => this.onLocalDescCreated(peer.id, desc, peer.connection))
+      .catch((error) => console.log(`Error connecting to peer(${peerId}): ${JSON.stringify(error)}`))
+
+  }
+
+  disconnect(peerId) {
+    let peer = this.peers.find(peer => peer.id === peerId)
+    if (!peer) return
+
+    // Close connection if it's not closed yet
+    if (peer.connection.signalingState !== "closed") {
+      peer.connection.close()
+    }
+
+    // Remove from peers list
+    const peerIndex = this.peers.indexOf(peer)
+    if(peerIndex != -1) {
+      this.peers.splice(peerIndex, 1)
+    }
   }
 
   onOfferReceived({to, from, sdp}) {
     // Handle only events that are intended for us
     if (to != this.currentUserId) return
+    console.log(`Offer received from ${from} with dsp: ${JSON.stringify(sdp)}`)
 
     let peer = this.getOrCreatePeer(from)
 
@@ -66,10 +78,25 @@ export default class PeerConnectionManager {
         // If we received an offer, we need to answer
         if (peer.connection.remoteDescription.type === 'offer') {
           peer.connection.createAnswer().then(desc => this.onLocalDescCreated(peer.id, desc, peer.connection));
-        }
+        } 
+
       })
-      .catch(error => console.log(`Error receiving RDP offer from ${from}: ${error}`));
+      .catch(error => console.log(`Error receiving RDP offer from ${from}: ${JSON.stringify(error)}`));
   }
+
+  onIceCandidateReceived({to, from, iceCandidate}) {
+    // Handle only events that are intended for us
+    if (this.currentUserId != to) return
+
+    let peer = this.getOrCreatePeer(from)
+    let rtcCandidate = new RTCIceCandidate(iceCandidate)
+    console.log(`RTCIceCandidate created: ${JSON.stringify(rtcCandidate)}`)
+    peer.connection
+      .addIceCandidate(rtcCandidate)
+      .then(() => console.log("Adding ICE candidate success"))
+      .catch((error) => console.log(`Error adding ICE candidate: ${error}`))
+  }
+
 
   createPeer(peerId) {
     // Create a connection and peer objects
@@ -78,17 +105,22 @@ export default class PeerConnectionManager {
 
     // Send ice candidate to the peer once it's received from the STUN server
     conn.onicecandidate = (evt) => {
+      console.log(`Received some ice event: ${JSON.stringify(evt)}`)
       if (evt.candidate) {
+        console.log(`ICE candidate received: ${JSON.stringify(evt.candidate)}`)
         this.signallingChannel.push("signalling:ice", {peerId, "candidate": evt.candidate})
       }
     }
 
     // Add RTCDataChannel to peer object once it's created and opened
     conn.ondatachannel = (evt) => {
-      console.log("Data channel created!")
-      evt.channel.onopen = () => peer.dataChannel = evt.channel
+      evt.channel.onopen = () => {
+        console.log("Data channel is opened!")
+        peer.dataChannel = evt.channel
+      }
     }
 
+    console.log(`New peer object created: ${JSON.stringify(peer)}`)
     this.peers.push(peer)
     return peer
   }

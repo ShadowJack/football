@@ -32,8 +32,8 @@ function handleDOMContentLoaded() {
 
   if (window.lobbyId) {
     GameLobby.init(socket, window.guardian_token, window.lobbyId)
+    window.gameLobby = GameLobby
   }
-
 }
 
 window.addEventListener('DOMContentLoaded', handleDOMContentLoaded, false);
