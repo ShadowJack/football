@@ -12,7 +12,8 @@ defmodule Football do
     children = [
       supervisor(Football.Repo, []),
       supervisor(Football.Endpoint, []),
-      worker(Football.Lobby.LobbiesManager, []),
+      supervisor(Football.Lobby.LobbiesSupervisor, []),
+      supervisor(Registry, [:unique, :lobbies_registry]),
       supervisor(Football.Presence, [])
     ]
 

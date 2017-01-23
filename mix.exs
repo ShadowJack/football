@@ -41,6 +41,7 @@ defmodule Football.Mixfile do
       {:cowboy, "~> 1.0"},
       {:guardian, "~> 0.13.0"},
       {:credo, "~> 0.5", only: [:dev, :test]},
+      {:uuid, "~> 1.1"}
     ]
   end
 

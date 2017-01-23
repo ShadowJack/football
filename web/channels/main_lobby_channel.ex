@@ -8,16 +8,16 @@ defmodule Football.MainLobbyChannel do
 
   use Football.Web, :channel
 
-  alias Football.Lobby.LobbiesManager
+  alias Football.Lobby.LobbiesSupervisor
 
   def join("main_lobby:lobby", _payload, socket) do
-    resp = %{game_lobbies: LobbiesManager.get_all_lobbies()}
+    resp = %{game_lobbies: LobbiesSupervisor.get_all_lobbies()}
     Logger.info("User joined: #{Guardian.Phoenix.Socket.current_resource(socket)}")
     {:ok, resp, socket}
   end
 
   def handle_in("lobby:add", %{"name" => name}, socket) do
-    case LobbiesManager.add_lobby(name) do
+    case LobbiesSupervisor.add_lobby(name) do
       {:ok, lobby} -> 
         broadcast!(socket, "lobby:added", %{"id" => lobby.id, "name" => name, "created_at" => lobby.created_at})
         {:reply, :ok, socket}

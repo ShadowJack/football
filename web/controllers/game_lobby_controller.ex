@@ -6,7 +6,7 @@ defmodule Football.GameLobbyController do
          {:ok, resource} <-Guardian.serializer.from_token(claims["sub"]) do
       render(conn, "index.html", %{guardian_token: guardian_token, lobby_id: lobby_id, user_id: resource})
     else
-      {:error, reason} -> 
+      {:error, _reason} -> 
         conn
         |> put_status(:unauthorized)
         |> render(Football.ErrorView, "301.html")

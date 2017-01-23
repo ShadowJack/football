@@ -1,3 +1,4 @@
+// Default configuration for RTCPeerConnections
 const PEER_CONN_CONFIG = {
   'iceServers': [
     {
