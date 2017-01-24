@@ -47,6 +47,14 @@ defmodule Football.Lobby do
   end
 
   @doc """
+  Update lobby by `id`
+  """
+  @spec update(Lobby.id, Enum.t) :: Lobby.t
+  def update(id, changes) do
+    GenServer.call(via_tuple(id), {:update, changes})
+  end
+
+  @doc """
   Remove the lobby by `pid`
   """
   @spec remove(GenServer.server) :: none
@@ -74,6 +82,12 @@ defmodule Football.Lobby do
   @doc false
   def handle_call(:get_data, _from, state) do
     {:reply , state, state}
+  end
+
+  @doc false
+  def handle_call({:update, changes}, _from, state) do
+    new_state = struct(state, changes)
+    {:reply, new_state, new_state}
   end
 
   @doc false

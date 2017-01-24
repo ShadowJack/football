@@ -67,4 +67,15 @@ defmodule Football.LobbyListAgentTest do
     assert {:ok, lobby} = get_lobby(lobby.id)
     assert lobby.name == "test_lobby"
   end
+
+  test "it updates lobby status by id" do
+    {:ok, %Lobby{id: id}} = add_lobby("test_lobby")
+
+    assert {:ok, %Lobby{id: ^id, name: _, status: :full}} 
+      = update_lobby_status(id, :full)
+  end
+
+  test "it returns error for update request when lobby is not found" do
+    assert {:error, _reason} = update_lobby_status("", :full)
+  end
 end

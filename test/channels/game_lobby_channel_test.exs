@@ -1,18 +1,18 @@
 defmodule Football.GameLobbyChannelTest do
   use Football.ChannelCase
 
-  alias Football.{GameLobbyChannel, Lobby.LobbiesManager}
+  alias Football.{GameLobbyChannel, Lobby.LobbiesSupervisor}
 
   @lobby_name Atom.to_string(__MODULE__)
 
   setup do
-    {:ok, lobby} = Football.Lobby.LobbiesManager.add_lobby(@lobby_name)
+    {:ok, lobby} = LobbiesSupervisor.add_lobby(@lobby_name)
 
     {:ok, jwt, _} = Guardian.encode_and_sign("game_channel_test_user", :access)
     {:ok, socket} = connect(Football.UserSocket, %{"guardian_token" => jwt})
 
     on_exit(fn -> 
-      LobbiesManager.remove_lobby(lobby.id)
+      LobbiesSupervisor.remove_lobby(lobby.id)
       Guardian.Phoenix.Socket.sign_out(socket)
     end)
 

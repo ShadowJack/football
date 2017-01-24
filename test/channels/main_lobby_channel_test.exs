@@ -12,7 +12,7 @@ defmodule Football.MainLobbyChannelTest do
       socket
       |> subscribe_and_join(MainLobbyChannel, "main_lobby:lobby")
 
-    on_exit fn -> 
+    on_exit fn ->
       Guardian.Phoenix.Socket.sign_out(authed_socket)
     end
 
@@ -25,7 +25,20 @@ defmodule Football.MainLobbyChannelTest do
 
   test "adds a new lobby and updates lobbies list for all users", %{socket: socket} do
     ref = push(socket, "lobby:add", %{"name" => @game_lobby_name})
+
     assert_reply(ref, :ok)
-    assert_broadcast("lobby:added", %{"id" => _id, "name" => @game_lobby_name, "created_at" => _created_at})
+    assert_broadcast("lobby:list", [%{"id" => _id, "name" => @game_lobby_name, "created_at" => _created_at}])
+  end
+
+  test "lists only lobbies with status `:open`" do
+    ref = push(socket, "lobby:add", %{"name" => @game_lobby_name})
+    assert_reply(ref, :ok)
+    ref = push(socket, "lobby:add", %{"name" => @game_lobby_name <> "2")
+    assert_reply(ref, :ok)
+    
+    assert_broadcast("lobby:list", lobbies)
+    assert(lobbies |> List.length == 2)
+
+    #TODO: update lobby status and check that only one lobby is returned
   end
 end
