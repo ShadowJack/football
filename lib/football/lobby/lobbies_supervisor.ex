@@ -81,6 +81,15 @@ defmodule Football.Lobby.LobbiesSupervisor do
   end
 
   @doc """
+  Gets the list of lobbies filtered by `selector` function
+  """
+  @spec get_lobbies((Lobby.t -> boolean)) :: [Lobby.t]
+  def get_lobbies(selector) do
+    get_all_lobbies()
+    |> Enum.filter(selector)
+  end
+
+  @doc """
   Removes one lobby from the lobbies list
   """
   @spec remove_lobby(Lobby.id) :: :ok | {:error, String.t}

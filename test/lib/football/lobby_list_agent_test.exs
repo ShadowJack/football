@@ -26,22 +26,25 @@ defmodule Football.LobbyListAgentTest do
     
     all_lobbie_names = 
       get_all_lobbies() 
-      |> Enum.sort(fn lobby1, lobby2 -> 
-        lobby1.created_at <= lobby2.created_at
+      |> Enum.sort(fn l1, l2 -> 
+        l1.created_at <= l2.created_at
       end)
       |> Enum.map(fn lobby -> lobby.name end)
     assert all_lobbie_names == ["test_lobby1", "test_lobby2", "test_lobby3"]
   end
 
-  # test "it lists lobbies by status" do
-  #   add_lobby("test_lobby1")
-  #   add_lobby("test_lobby2")
-  # 
-  #   lobbie_names =
-  #     get_lobbies(fn lobby -> lobby.status == :open end)
-  #     |> Enum.map(fn lobby -> lobby.name end)
-  #   assert lobbie_names == ["test_lobby1", "test_lobby2"]
-  # end
+  test "it's possible to fetch lobbies by selector" do
+    add_lobby("test_lobby1")
+    add_lobby("test_lobby2")
+  
+    lobbie_names =
+      get_lobbies(fn lobby -> lobby.status == :open end)
+      |> Enum.sort(fn l1, l2 -> 
+        l1.created_at <= l2.created_at
+      end)
+      |> Enum.map(fn lobby -> lobby.name end)
+    assert lobbie_names == ["test_lobby1", "test_lobby2"]
+  end
 
   test "it removes lobby from LobbyList" do
     add_lobby("test_lobby")
