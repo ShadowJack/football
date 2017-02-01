@@ -29,6 +29,8 @@ defmodule Football.Lobby.LobbiesSupervisor do
   Name is required.
   """
   @spec add_lobby(String.t) :: {:ok, Lobby.t} | {:error, String.t}
+  def add_lobby(lobby_name)
+
   def add_lobby(""), do: {:error, "Lobby name can't be empty"}
 
   @lint {Credo.Check.Warning.IoInspect, false}
