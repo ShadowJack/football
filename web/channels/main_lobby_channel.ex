@@ -26,6 +26,20 @@ defmodule Football.MainLobbyChannel do
     end
   end
 
+  @doc """
+  Notifies all users about updated lobby status
+  """
+  def handle_lobby_status_update(updated_lobby) do
+    Football.Endpoint.broadcast!("main_lobby:lobby", "lobby:status_updated", %{id: updated_lobby.id, new_status: updated_lobby.status})
+  end
+
+  @doc """
+  Notifies all users that lobby was removed
+  """
+  def handle_lobby_removed(removed_lobby_id) do
+    Football.Endpoint.broadcast!("main_lobby:lobby", "lobby:removed", %{id: removed_lobby_id})
+  end
+
   defp get_open_lobbies() do
     LobbiesSupervisor.get_lobbies(fn l -> l.status == :open end)
   end

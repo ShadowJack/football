@@ -87,6 +87,7 @@ defmodule Football.Lobby do
   @doc false
   def handle_call({:update, changes}, _from, state) do
     new_state = struct(state, changes)
+    Football.MainLobbyChannel.handle_lobby_status_update(new_state)
     {:reply, new_state, new_state}
   end
 
@@ -96,7 +97,8 @@ defmodule Football.Lobby do
   end
 
   @doc false
-  def terminate(_reason, _state) do
+  def terminate(_reason, state) do
+    Football.MainLobbyChannel.handle_lobby_removed(state.id)
     :ok
   end
 end

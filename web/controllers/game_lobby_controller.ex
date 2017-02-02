@@ -1,9 +1,11 @@
 defmodule Football.GameLobbyController do
   use Football.Web, :controller
+  require Logger
 
   def index(conn, %{"token" => guardian_token, "lobby_id" => lobby_id}) do
+    Logger.debug("Lobby id: #{lobby_id}")
     with {:ok, claims} <- Guardian.decode_and_verify(guardian_token),
-         {:ok, resource} <-Guardian.serializer.from_token(claims["sub"]) do
+         {:ok, resource} <- Guardian.serializer.from_token(claims["sub"]) do
       render(conn, "index.html", %{guardian_token: guardian_token, lobby_id: lobby_id, user_id: resource})
     else
       {:error, _reason} -> 

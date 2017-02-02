@@ -28,14 +28,14 @@ defmodule Football.MainLobbyChannelTest do
     ref = push(socket, "lobby:add", %{"name" => @game_lobby_name})
 
     assert_reply(ref, :ok)
-    assert_broadcast("lobby:add", %{"id" => _id, "name" => @game_lobby_name, "created_at" => _created_at})
+    assert_broadcast("lobby:added", %Lobby{name: @game_lobby_name})
   end
 
-  test "sends updated lobby info to all users", %{socket: socket} do
+  test "sends updated lobby info to all users" do
     {:ok, %Lobby{id: id}} = LobbiesSupervisor.add_lobby(@game_lobby_name)
     LobbiesSupervisor.update_lobby_status(id, :full)
 
-    assert_broadcast("lobby:update_status", %{"id" => ^id, "new_status" => :full})
+    assert_broadcast("lobby:status_updated", %{id: ^id, new_status: :full})
   end
 
   test "sends only open lobbies when new user connects" do
@@ -46,18 +46,18 @@ defmodule Football.MainLobbyChannelTest do
     # New user connects to main lobby
     {:ok, jwt, _} = Guardian.encode_and_sign("new_test_user", :access)
     {:ok, socket} = connect(UserSocket, %{"guardian_token" => jwt})
-    {:ok, %{game_lobbies: lobbies}, authed_socket} =
+    {:ok, %{game_lobbies: lobbies}, _} =
       socket
       |> subscribe_and_join(MainLobbyChannel, "main_lobby:lobby")
 
     assert [%Lobby{id: ^second_id}] = lobbies
   end
 
-  test "sends info about removed lobby", %{socket: socket} do
+  test "sends info about removed lobby" do
     {:ok, %Lobby{id: id}} = LobbiesSupervisor.add_lobby(@game_lobby_name)
 
     LobbiesSupervisor.remove_lobby(id)
 
-    assert_broadcast("lobby:remove", %{"id" => ^id})
+    assert_broadcast("lobby:removed", %{id: ^id})
   end
 end

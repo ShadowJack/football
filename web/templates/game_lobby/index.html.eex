@@ -2,6 +2,6 @@
 <ul id="UsersList"></ul>
 
 <script>
-  window.lobbyId = <%= @lobby_id %>
+  window.lobbyId = "<%= @lobby_id %>"
   window.userId = <%= @user_id %>
 </script>
