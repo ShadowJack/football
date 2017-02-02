@@ -74,4 +74,9 @@ defmodule Football.Presence do
   """
   use Phoenix.Presence, otp_app: :football,
                         pubsub_server: Football.PubSub
+
+  #TODO: check if lobby is full and if so update its status
+  def handle_diff() do
+    
+  end
 end

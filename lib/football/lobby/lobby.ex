@@ -12,6 +12,7 @@ defmodule Football.Lobby do
   @type t :: %__MODULE__{id: id, name: String.t, created_at: DateTime.t, status: status}
 
   @registry_name :lobbies_registry
+  @users_limit 8
 
   ##
   # Client interface
@@ -69,6 +70,12 @@ defmodule Football.Lobby do
   def remove(id) do
     GenServer.cast(via_tuple(id), :remove)
   end
+
+  @doc """
+  Get maximum number of connected users
+  """
+  @spec users_limit() :: number
+  def users_limit(), do: @users_limit
 
   ##
   # GenServer callbacks
