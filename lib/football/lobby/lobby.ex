@@ -13,6 +13,7 @@ defmodule Football.Lobby do
 
   @registry_name :lobbies_registry
   @users_limit 8
+  @status_values [:open, :full, :in_game, :finished]
 
   ##
   # Client interface
@@ -76,6 +77,12 @@ defmodule Football.Lobby do
   """
   @spec users_limit() :: number
   def users_limit(), do: @users_limit
+
+  @doc """
+  Get possible values for status
+  """
+  @spec status_values() :: [status]
+  def status_values(), do: @status_values
 
   ##
   # GenServer callbacks

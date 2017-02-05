@@ -96,10 +96,11 @@ defmodule Football.Lobby.LobbiesSupervisor do
   """
   @spec update_lobby_status(Lobby.id, Lobby.status) :: {:ok, Lobby.t} | {:error, String.t}
   def update_lobby_status(id, new_status) do
-    if exists?(id) do
+    with true <- exists?(id),
+         true <- Enum.any?(Lobby.status_values, fn s -> s == new_status end) do
       {:ok, Lobby.update(id, status: new_status)}
     else
-      {:error, "Lobby with this id doesn't exist"}
+      false -> {:error, "Lobby with this id doesn't exist or status is invalid"}
     end
   end
 
