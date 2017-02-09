@@ -53,22 +53,6 @@ defmodule Football.LobbiesSupervisorTest do
     assert {:ok, %Lobby{name: ^test_name}} = get_lobby(lobby.id)
   end
 
-  test "it updates lobby status by id", context do
-    {:ok, %Lobby{id: id}} = add_lobby(test_name(context))
-
-    assert {:ok, %Lobby{id: ^id, status: :full}} = update_lobby_status(id, :full)
-  end
-
-  test "it returns error for update request when lobby is not found" do
-    assert {:error, _reason} = update_lobby_status("", :full)
-  end
-
-  test "it returns error for update to wrong status", context do
-    {:ok, %Lobby{id: id}} = add_lobby(test_name(context))
-
-    assert {:error, _reason} = update_lobby_status(id, :unknown_status)
-  end
-
   defp test_name(%{test: test_name}) do
     Atom.to_string(test_name)
   end

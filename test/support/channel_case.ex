@@ -15,6 +15,11 @@ defmodule Football.ChannelCase do
 
   use ExUnit.CaseTemplate
 
+  # These require and module tag
+  # are used for helper functions
+  require Phoenix.ChannelTest
+  @endpoint Football.Endpoint
+
   using do
     quote do
       # Import conveniences for testing with channels
@@ -24,7 +29,7 @@ defmodule Football.ChannelCase do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-
+      import Football.ChannelCase
 
       # The default endpoint for testing
       @endpoint Football.Endpoint
@@ -39,5 +44,37 @@ defmodule Football.ChannelCase do
     end
 
     :ok
+  end
+
+  @doc """
+  Connects max amount of users to the specified game lobby
+  and returns a list of connected sockets
+  """
+  @spec connect_full_game_lobby(Football.Lobby.id) :: [Phoenix.Socket.t]
+  def connect_full_game_lobby(lobby_id) do
+    for user_id <- 1..Football.Lobby.users_limit() do
+      connect_to_game_lobby(user_id, lobby_id)
+    end
+  end
+
+  @doc """
+  Connects one user with `user_id` to game lobby specified by `lobby_id`.
+  Returns authorized and connected socket.
+  """
+  @spec connect_to_game_lobby(number, Football.Lobby.id) :: Phoenix.Socket.t
+  def connect_to_game_lobby(user_id, lobby_id) do
+    socket = connect_to_socket(user_id)
+    {:ok, _resp, socket} = Phoenix.ChannelTest.subscribe_and_join(socket, Football.GameLobbyChannel, "game_lobby:#{lobby_id}")
+    socket
+  end
+
+  @doc """
+  Connects a user with `user_id` to socket
+  """
+  @spec connect_to_socket(number) :: Phoenix.Socket.t
+  def connect_to_socket(user_id) do
+    {:ok, jwt, _} = Guardian.encode_and_sign("test_user:#{user_id}", :access)
+    {:ok, socket} = Phoenix.ChannelTest.connect(Football.UserSocket, %{"guardian_token" => jwt})
+    socket
   end
 end

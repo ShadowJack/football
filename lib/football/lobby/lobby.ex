@@ -11,7 +11,7 @@ defmodule Football.Lobby do
   @type status :: :open | :full | :in_game | :finished
   @type t :: %__MODULE__{id: id, name: String.t, created_at: DateTime.t, status: status}
 
-  @registry_name :lobbies_registry
+  @registry_name Application.get_env(:football, :lobbies_registry_name, :lobbies_registry)
   @users_limit 8
   @status_values [:open, :full, :in_game, :finished]
 
@@ -46,6 +46,14 @@ defmodule Football.Lobby do
   @spec get_data(id) :: t
   def get_data(id) do
     GenServer.call(via_tuple(id), :get_data)
+  end
+
+  @doc """
+  Adds a new user channel for monitoring
+  """
+  @spec add_user(id, pid) :: {:ok, Lobby.t} | {:error, String.t}
+  def add_user(id, pid) do
+    GenServer.call(via_tuple(id), {:add_user, pid})
   end
 
   @doc """
@@ -90,20 +98,49 @@ defmodule Football.Lobby do
 
   @doc false
   def init([id, name]) do
-    {:ok, %__MODULE__{id: id, name: name, created_at: DateTime.utc_now(), status: :open}}
+    lobby = %__MODULE__{id: id, name: name, created_at: DateTime.utc_now(), status: :open}
+    {:ok, {lobby, []}}
+  end
+
+  # Handle addition of new users
+  @doc false
+  def handle_call({:add_user, pid}, _from, {%__MODULE__{status: :open} = lobby, users}) do
+    ref = Process.monitor(pid)
+    users = [ref | users]
+
+    if limit_is_reached(users) do
+      updated_lobby = %__MODULE__{lobby | status: :full}
+      Football.MainLobbyChannel.handle_lobby_status_update(updated_lobby)
+      {:reply, {:ok, updated_lobby}, {updated_lobby, users}}
+    else
+      {:reply, {:ok, lobby}, {lobby, users}}
+    end
   end
 
   @doc false
-  def handle_call(:get_data, _from, state) do
-    {:reply , state, state}
+  def handle_call({:add_user, _pid}, _from, state) do
+    resp = {:error, "Can't add a new user, lobby is not open"}
+    {:reply, resp, state}
   end
 
   @doc false
-  def handle_call({:update, changes}, _from, state) do
-    new_state = struct(state, changes)
-    Football.MainLobbyChannel.handle_lobby_status_update(new_state)
-    {:reply, new_state, new_state}
+  def handle_call(:get_data, _from, {lobby, _users} = state) do
+    {:reply , lobby, state}
   end
+
+  # Handle DOWN events from user channels
+  @doc false
+  def handle_info({:DOWN, ref, _, _, _}, {lobby, users}) do
+    users = users |> Enum.filter(fn user_ref -> user_ref != ref end)
+    if lobby.status == :full && !limit_is_reached(users) do
+      updated_lobby = %__MODULE__{lobby | status: :open}
+      Football.MainLobbyChannel.handle_lobby_status_update(updated_lobby)
+      {:noreply, {updated_lobby, users}}
+    else
+      {:noreply, {lobby, users}}
+    end
+  end
+
 
   @doc false
   def handle_cast(:remove, state) do
@@ -111,8 +148,12 @@ defmodule Football.Lobby do
   end
 
   @doc false
-  def terminate(_reason, state) do
-    Football.MainLobbyChannel.handle_lobby_removed(state.id)
+  def terminate(_reason, {lobby, _users}) do
+    Football.MainLobbyChannel.handle_lobby_removed(lobby.id)
     :ok
+  end
+
+  defp limit_is_reached(users) do
+    users |> Enum.count >= @users_limit   
   end
 end

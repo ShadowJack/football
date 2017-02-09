@@ -7,7 +7,8 @@ use Mix.Config
 
 # General application configuration
 config :football,
-  ecto_repos: [Football.Repo]
+  ecto_repos: [Football.Repo],
+  lobbies_registry_name: :lobbies_registry
 
 # Configures the endpoint
 config :football, Football.Endpoint,

@@ -9,11 +9,12 @@ defmodule Football do
     import Supervisor.Spec
 
     # Define workers and child supervisors to be supervised
+    lobbies_registry_name = Application.get_env(:football, :lobbies_registry_name, :lobbies_registry)
     children = [
       supervisor(Football.Repo, []),
       supervisor(Football.Endpoint, []),
       supervisor(Football.Lobby.LobbiesSupervisor, []),
-      supervisor(Registry, [:unique, :lobbies_registry]),
+      supervisor(Registry, [:unique, lobbies_registry_name]),
       supervisor(Football.Presence, [])
     ]
 

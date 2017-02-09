@@ -1,13 +1,13 @@
 defmodule Football.Lobby.LobbiesSupervisor do
   @moduledoc """
   Abstraction that supervises all game lobbies
-  and provides access to them
+  and provides CRUD interface for managing them
   """
 
   use Supervisor
   alias Football.Lobby
 
-  @registry_name :lobbies_registry
+  @registry_name Application.get_env(:football, :lobbies_registry_name, :lobbies_registry)
 
   @doc """
   Start supervisor
@@ -33,7 +33,6 @@ defmodule Football.Lobby.LobbiesSupervisor do
 
   def add_lobby(""), do: {:error, "Lobby name can't be empty"}
 
-  @lint {Credo.Check.Warning.IoInspect, false}
   def add_lobby(name) when is_binary(name) do
     new_id = UUID.uuid1(:hex)
     if exists?(new_id) do
@@ -43,7 +42,7 @@ defmodule Football.Lobby.LobbiesSupervisor do
       case Supervisor.start_child(__MODULE__, [new_id, name]) do
         {:ok, pid} -> {:ok, Lobby.get_data(pid)}
         {:error, {:already_started, _pid}} -> {:error, "Lobby process already started"}
-        other -> {:error, IO.inspect(other)}
+        other -> {:error, other}
       end
     end
   end
@@ -89,19 +88,6 @@ defmodule Football.Lobby.LobbiesSupervisor do
   def get_lobbies(selector) do
     get_all_lobbies()
     |> Enum.filter(selector)
-  end
-
-  @doc """
-  Updates lobby status
-  """
-  @spec update_lobby_status(Lobby.id, Lobby.status) :: {:ok, Lobby.t} | {:error, String.t}
-  def update_lobby_status(id, new_status) do
-    with true <- exists?(id),
-         true <- Enum.any?(Lobby.status_values, fn s -> s == new_status end) do
-      {:ok, Lobby.update(id, status: new_status)}
-    else
-      false -> {:error, "Lobby with this id doesn't exist or status is invalid"}
-    end
   end
 
   @doc """
