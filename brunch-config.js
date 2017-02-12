@@ -2,7 +2,10 @@ exports.config = {
   // See http://brunch.io/#documentation for docs.
   files: {
     javascripts: {
-      joinTo: "js/app.js",
+      joinTo: {
+        "js/app.js": /^(web|node_modules)/,
+        "js/test.js": /^(web|node_modules|test\/js)/,
+      },
       order: {
         before: [
           "web/static/vendor/js/jquery-3.1.1.js",
@@ -34,7 +37,8 @@ exports.config = {
     // Dependencies and current project directories to watch
     watched: [
       "web/static",
-      "test/static"
+      "test/static",
+      "test/js"
     ],
 
     // Where to compile files to
@@ -46,12 +50,28 @@ exports.config = {
     babel: {
       // Do not use ES6 compiler in vendor code
       ignore: [/web\/static\/vendor/]
+    },
+    karma: {
+      basePath: '',
+      singleRun: false,
+      frameworks: ['jasmine'],
+      reporters: ['dots'],
+      colors: true,
+      plugins: [
+        'karma-jasmine',
+        'karma-phantomjs-launcher'
+      ],
+      browsers: ['PhantomJS'],
+      files: [
+        "priv/static/js/test.js"
+      ]
     }
   },
 
   modules: {
     autoRequire: {
-      "js/app.js": ["web/static/js/app"]
+      "js/app.js": ["web/static/js/app"],
+      "js/test.js": ["test/js/test_helper"]
     }
   },
 

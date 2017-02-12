@@ -3,8 +3,7 @@
   "license": "MIT",
   "scripts": {
     "deploy": "brunch build --production",
-    "watch": "brunch watch --stdin",
-    "test": "./node_modules/karma/bin/karma start ./karma-config.js"
+    "watch": "brunch watch --stdin"
   },
   "dependencies": {
     "phoenix": "file:deps/phoenix",
@@ -19,8 +18,7 @@
     "jasmine-core": "^2.5.2",
     "javascript-brunch": "~2.0.0",
     "karma": "^1.3.0",
-    "karma-babel-preprocessor": "^6.0.1",
-    "karma-chrome-launcher": "^2.0.0",
+    "karma-brunch": "^1.0.6",
     "karma-jasmine": "^1.1.0",
     "karma-phantomjs-launcher": "^1.0.2",
     "uglify-js-brunch": "~2.0.1"
