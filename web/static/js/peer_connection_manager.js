@@ -24,10 +24,12 @@ export default class PeerConnectionManager {
   // a phoenix channel that will be used for signalling
   // and an array of peer objects: 
   // {id: userId, connection: RTCPeerConnection, dataChannel: RTCDataChannel}
-  constructor(currentUserId, signallingChannel, peers) {
+  constructor(currentUserId, signallingChannel, peers, onPeerAdded, onPeerRemoved) {
     this.currentUserId = currentUserId
     this.signallingChannel = signallingChannel
     this.peers = peers
+    this.onPeerAdded = onPeerAdded
+    this.onPeerRemoved = onPeerRemoved
 
     this.signallingChannel.on("signalling:sdp", data => this.onOfferReceived(data))
     this.signallingChannel.on("signalling:ice", data => this.onIceCandidateReceived(data))
@@ -64,6 +66,7 @@ export default class PeerConnectionManager {
     const peerIndex = this.peers.indexOf(peer)
     if(peerIndex != -1) {
       this.peers.splice(peerIndex, 1)
+      this.onPeerRemoved(peer)
     }
   }
 
@@ -123,6 +126,7 @@ export default class PeerConnectionManager {
 
     console.log(`New peer object created: ${JSON.stringify(peer)}`)
     this.peers.push(peer)
+    this.onPeerAdded(peer)
     return peer
   }
 

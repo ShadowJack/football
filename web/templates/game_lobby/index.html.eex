@@ -1,4 +1,4 @@
-<div id="LobbyName"></div>
+<h2 id="LobbyName"></h2>
 <ul id="UsersList"></ul>
 
 <script>

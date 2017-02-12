@@ -1,37 +1,39 @@
 import PeerConnectionManager from "./peer_connection_manager"
 
 let GameLobby = {
-  guardianToken: "",
   peers: [],
   peerConnectionManager: null,
 
   init(socket, token, lobbyId) {
-    this.guardianToken = token
     socket.connect({guardian_token: token})
 
-    // Create a phoenix channel
-    this.gameChannel = socket.channel(`game_lobby:${lobbyId}`, {})
+    let gameChannel = this.buildGameChannel(socket, lobbyId)
 
     // Create a PeerConnectionManager for
     // establishing connections with peers via WebRTC DataChannel
-    this.peerConnectionManager = new PeerConnectionManager(window.userId, this.gameChannel, this.peers)
+    this.peerConnectionManager = new PeerConnectionManager(
+      window.userId,
+      gameChannel,
+      this.peers,
+      this.onPeerAdded,
+      this.onPeerRemoved)
 
     // Connect to phoenix channel
-    this.gameChannel.join()
-      .receive("ok", ({lobby}) => {
-        $("#LobbyName").text(lobby.name)
-      })
-      .receive("error", resp => console.log("Cannot connect to game lobby: ", resp))
+    gameChannel.join()
+      .receive("ok", ({lobby}) => $("#LobbyName").text(lobby.name))
+      .receive("error", (resp) => console.log("Cannot connect to game lobby: ", resp))
+  },
 
-    // Handle presence events
-    //
+  buildGameChannel(socket, lobbyId) {
+    let gameChannel = socket.channel(`game_lobby:${lobbyId}`, {})
 
     // When first list of users is received after connection,
     // connect to other users and fill `peers` list
-    this.gameChannel.on("presence_state", data => this.connectToAllUsers(data))
+    gameChannel.on("presence_state", data => this.connectToAllUsers(data))
 
-    // When some user is disconnected - remove it from peers
-    this.gameChannel.on("presence_diff", ({joins, leaves}) => this.onUsersDisconnected(leaves))
+    // When some user is disconnected - remove it from peers list
+    gameChannel.on("presence_diff", ({joins, leaves}) => this.onUsersDisconnected(leaves))
+    return gameChannel
   },
 
   connectToAllUsers(usersData) {
@@ -53,6 +55,17 @@ let GameLobby = {
     for(let userId of Object.getOwnPropertyNames(disconnectedUsers)) {
       this.peerConnectionManager.disconnect(userId)
     }
+  },
+
+  onPeerAdded(peer) {
+    $("<div/>", {
+      id: `User${peer.id}`,
+      text: `User${peer.id}`
+    }).appendTo("#UsersList")
+  },
+
+  onPeerRemoved(peer) {
+    $(`#User${peer.id}`).remove()
   }
 }
 
