@@ -1,13 +1,17 @@
-import PeerConnectionManager from "./peer_connection_manager"
+// @flow
+import PeerConnectionManager from "./peer_connection_manager";
 
-let GameLobby = {
-  peers: [],
-  peerConnectionManager: null,
+export default class GameLobby {
+  peers: Array<Peer>;
+  peerConnectionManager: ?PeerConnectionManager;
 
-  init(socket, token, lobbyId) {
-    socket.connect({guardian_token: token})
+  constructor(socket: any, token: string, lobbyId: string) {
+    this.peers = [];
+    this.peerConnectionManager = null;
 
-    let gameChannel = this.buildGameChannel(socket, lobbyId)
+    socket.connect({guardian_token: token});
+
+    let gameChannel = this.buildGameChannel(socket, lobbyId);
 
     // Create a PeerConnectionManager for
     // establishing connections with peers via WebRTC DataChannel
@@ -16,57 +20,59 @@ let GameLobby = {
       gameChannel,
       this.peers,
       this.onPeerAdded,
-      this.onPeerRemoved)
+      this.onPeerRemoved);
 
     // Connect to phoenix channel
     gameChannel.join()
       .receive("ok", ({lobby}) => $("#LobbyName").text(lobby.name))
-      .receive("error", (resp) => console.log("Cannot connect to game lobby: ", resp))
-  },
+      .receive("error", (resp) => console.log("Cannot connect to game lobby: ", resp));
+  }
 
-  buildGameChannel(socket, lobbyId) {
-    let gameChannel = socket.channel(`game_lobby:${lobbyId}`, {})
+  buildGameChannel(socket: any, lobbyId: string) {
+    let gameChannel = socket.channel(`game_lobby:${lobbyId}`, {});
 
     // When first list of users is received after connection,
     // connect to other users and fill `peers` list
-    gameChannel.on("presence_state", data => this.connectToAllUsers(data))
+    gameChannel.on("presence_state", data => this.connectToAllUsers(data));
 
     // When some user is disconnected - remove it from peers list
-    gameChannel.on("presence_diff", ({joins, leaves}) => this.onUsersDisconnected(leaves))
-    return gameChannel
-  },
+    gameChannel.on("presence_diff", ({joins, leaves}) => this.onUsersDisconnected(leaves));
+    return gameChannel;
+  }
 
-  connectToAllUsers(usersData) {
+  connectToAllUsers(usersData: Object) {
     if (!this.peerConnectionManager) {
-      console.log("PeerConnectionManager is not instantiated")
-      return
+      console.log("PeerConnectionManager is not instantiated");
+      return;
     }
 
     for(let userId of Object.getOwnPropertyNames(usersData)) {
       if (userId == window.userId) {
-        continue
+        continue;
       }
 
-      this.peerConnectionManager.connect(userId)
+      this.peerConnectionManager.connect(userId);
     }
-  },
+  }
 
-  onUsersDisconnected(disconnectedUsers) {
+  onUsersDisconnected(disconnectedUsers: Object) {
     for(let userId of Object.getOwnPropertyNames(disconnectedUsers)) {
-      this.peerConnectionManager.disconnect(userId)
+      if (!this.peerConnectionManager) {
+        console.log('Connection manager is not found when disconnecting user');
+        return;
+      }
+      this.peerConnectionManager.disconnect(userId);
     }
-  },
+  }
 
-  onPeerAdded(peer) {
+  onPeerAdded(peer: Peer) {
     $("<div/>", {
       id: `User${peer.id}`,
       text: `User${peer.id}`
-    }).appendTo("#UsersList")
-  },
+    }).appendTo("#UsersList");
+  }
 
-  onPeerRemoved(peer) {
-    $(`#User${peer.id}`).remove()
+  onPeerRemoved(peer: Peer) {
+    $(`#User${peer.id}`).remove();
   }
 }
-
-export default GameLobby

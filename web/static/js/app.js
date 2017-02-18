@@ -11,28 +11,27 @@
 //
 // If you no longer want to use a dependency, remember
 // to also remove its path from "config.paths.watched".
-import "phoenix_html"
+import "phoenix_html";
 
 // Import local files
 //
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
 
-import socket from "./socket"
-import MainLobby from "./main_lobby"
-import GameLobby from "./game_lobby"
+import socket from "./socket";
+import MainLobby from "./main_lobby";
+import GameLobby from "./game_lobby";
 
 function handleDOMContentLoaded() {
   //Ad hoc way to detect if MainLobby page is loaded right now
-  let mainLobbyElement = $("#MainLobby")
+  let mainLobbyElement = $("#MainLobby");
   if (mainLobbyElement.length) {
-    MainLobby.init(socket, window.guardian_token)
-    return
+    window.mainLobby = new MainLobby(socket, window.guardian_token);
+    return;
   }
 
   if (window.lobbyId) {
-    GameLobby.init(socket, window.guardian_token, window.lobbyId)
-    window.gameLobby = GameLobby
+    window.gameLobby = new GameLobby(socket, window.guardian_token, window.lobbyId);
   }
 }
 
