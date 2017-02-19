@@ -1,6 +1,8 @@
 <h2 id="LobbyName"></h2>
 <ul id="UsersList"></ul>
 
+<button type="submit" id="StartGameBtn">Start</button>
+
 <script>
   window.lobbyId = "<%= @lobby_id %>"
   window.userId = <%= @user_id %>

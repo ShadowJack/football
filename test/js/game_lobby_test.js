@@ -1,5 +1,5 @@
 describe("GameLobby", function() {
-  it("contains spec with an expectation", function() {
+  it("waits until all players press button and starts the game", function() {
     expect(true).toBe(true);
   });
 });

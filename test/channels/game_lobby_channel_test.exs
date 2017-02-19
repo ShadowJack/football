@@ -60,5 +60,11 @@ defmodule Football.GameLobbyChannelTest do
     assert {:error, %{reason: _}} = subscribe_and_join(socket, GameLobbyChannel, "game_lobby:#{lobby.id}")
   end
 
+  test "sends game_is_ready message once all users acknowledge they are ready", %{lobby: lobby} do
+    Enum.map(1..2, fn user_id -> connect_to_game_lobby(user_id, lobby.id) end)
+    |> Enum.map(&push(&1, "player:status_changed", %{"status" => "ready_to_play"}))
+
+    assert_broadcast("game_is_ready", %{})
+  end
 
 end

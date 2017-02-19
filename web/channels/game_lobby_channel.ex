@@ -21,39 +21,44 @@ defmodule Football.GameLobbyChannel do
   end
 
   def handle_info(:after_join, socket) do
-    Football.Presence.track(socket, Guardian.Phoenix.Socket.current_resource(socket), %{})
+    Football.Presence.track(socket, Guardian.Phoenix.Socket.current_resource(socket), %{status: "connected"})
     push(socket, "presence_state", Football.Presence.list(socket))
 
     {:noreply, socket}
   end
 
-  #TODO: check if it's enough to use `terminate` callback
-  # if not, then I'll need some supervisor to handle
-  # crashing lobby channels
-  # def terminate(_reason, socket) do
-  #   "game_lobby:" <> lobby_id = socket.topic
-  #   case  LobbiesSupervisor.get_lobby(lobby_id) do
-  #     {:ok, %Lobby{status: :full}} -> LobbiesSupervisor.update_lobby_status(lobby_id, :open)
-  #     _otherwise -> :nothing
-  #   end
-  # end
+  def handle_in("player:status_changed", %{"status" => "ready_to_play"}, socket) do
+    Football.Presence.update(socket, Guardian.Phoenix.Socket.current_resource(socket), %{status: "ready_to_play"})
+
+    # check if all players in the room are ready to play
+    Football.Presence.list(socket)
+    |> Enum.map(fn {user_id, %{metas: [meta | _rest]}} -> meta.status end)
+    |> Enum.all?(fn status -> status == "ready_to_play" end)
+    |> if(do: broadcast!(socket, "game_is_ready", %{}))
+
+    {:noreply, socket}
+  end
+
+  def handle_in("player:status_changed", %{"status" => any_status}, socket) do
+    {:noreply, socket}
+  end
 
   ##
   # WebRTC signalling infrastructure
-  def handle_in("signalling:sdp", %{"peerId" => peerId, "desc" => description}, socket) do
+  def handle_in("signalling:sdp", %{"peerId" => peer_id, "desc" => description}, socket) do
     payload = %{
       from: Guardian.Phoenix.Socket.current_resource(socket),
-      to: peerId,
+      to: peer_id,
       sdp: description
     }
     broadcast!(socket, "signalling:sdp", payload)
     {:noreply, socket}
   end
 
-  def handle_in("signalling:ice", %{"peerId" => peerId, "candidate" => candidate}, socket) do
+  def handle_in("signalling:ice", %{"peerId" => peer_id, "candidate" => candidate}, socket) do
     payload = %{
       from: Guardian.Phoenix.Socket.current_resource(socket),
-      to: peerId,
+      to: peer_id,
       iceCandidate: candidate
     }
     broadcast!(socket, "signalling:ice", payload)

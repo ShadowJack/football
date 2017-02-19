@@ -1,6 +1,10 @@
 /* @flow */
 type PeerFun = (peer: Peer) => any;
 
+//TODO: save peer connections that are being initialized internally
+// when dataChannel is created - call onPeerAdded handler that will save
+// the peer in calling object
+
 // Default configuration for RTCPeerConnections
 const PEER_CONN_CONFIG = {
   'iceServers': [
