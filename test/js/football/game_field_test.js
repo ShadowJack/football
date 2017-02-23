@@ -16,30 +16,30 @@ describe("GameField", () => {
   });
 
   it("doesn't change motile round game object if it doesn't touch bars", () => {
-    let centralObject = new MotileRoundObject(400, 250, 10, 1);
-    let objAfter = gameField.collideWithBars(centralObject);
+    let object = new MotileRoundObject(400, 250, 10, 1);
+    gameField.collideWithBars(object);
 
-    expect(objAfter).toEqual(centralObject);
+    expect(object).toEqual(new MotileRoundObject(400, 250, 10, 1));
   });
 
   it("changes motile round game object speed if it touches bars", () => {
-    let collidingObj = new MotileRoundObject(10, 175, 5, 1);
-    let objAfter = gameField.collideWithBars(obj);
+    let object = new MotileRoundObject(10, 175, 5, 1);
+    gameField.collideWithBars(object);
 
-    expect(objAfter).not.toEqual(collidingObj);
+    expect(object).not.toEqual(new MotileRoundObject(10, 175, 5, 1));
   });
 
   it("doesn't change motile round game object's speed if it doesn't touch field boundaries", () => {
-    let centralObject = new MotileRoundObject(400, 250, 10, 1);
-    let objAfter = gameField.collideWithBorders(centralObject);
+    let object = new MotileRoundObject(400, 250, 10, 1);
+    gameField.collideWithBorders(object);
 
-    expect(objAfter).toEqual(centralObject);
+    expect(object).toEqual(new MotileRoundObject(400, 250, 10, 1));
   });
 
   it("changes motile round game object speed if it touches field boundaries", () => {
-    let collidingObj = new MotileRoundObject(50, 100, 10, 1);
-    let objAfter = gameField.collideWithBorders(obj);
+    let object = new MotileRoundObject(50, 100, 10, 1);
+    gameField.collideWithBorders(object);
 
-    expect(objAfter).not.toEqual(collidingObj);
+    expect(object).not.toEqual(new MotileRoundObject(50, 100, 10, 1));
   });
 });

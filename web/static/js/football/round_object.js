@@ -14,10 +14,12 @@ export default class RoundObject {
 
   // Check if our object collides with another round object
   isCollidingWith({x, y, radius}: RoundObject): bool {
-    // Calculate squared distance between centers of objects
-    let distance = (this.x - x)*(this.x - x) + (this.y - y)*(this.y - y);
+    const distX = this.x - x; 
+    const distY = this.y - y;
+    const squaredDistance = distX * distX + distY * distY;
 
-    // Check if objects are colliding 
-    return distance <= (this.radius + radius)*(this.radius + radius);
+    const squaredRadiusesSum = (this.radius + radius)*(this.radius + radius);
+
+    return squaredDistance <= squaredRadiusesSum;
   }
 }

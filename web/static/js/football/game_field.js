@@ -24,10 +24,10 @@ export default class GameField {
   constructor() {
     this.bars = [];
 
-    this.bars.push(new Bar(LEFT_BORDER, UPPER_GOALS));
-    this.bars.push(new Bar(LEFT_BORDER, LOWER_GOALS));
-    this.bars.push(new Bar(RIGHT_BORDER, UPPER_GOALS));
-    this.bars.push(new Bar(RIGHT_BORDER, LOWER_GOALS));
+    this.bars.push(new Bar(LEFT_GOALS, UPPER_GOALS));
+    this.bars.push(new Bar(LEFT_GOALS, LOWER_GOALS));
+    this.bars.push(new Bar(RIGHT_GOALS, UPPER_GOALS));
+    this.bars.push(new Bar(RIGHT_GOALS, LOWER_GOALS));
   }
 
   collideWithBars(object: MotileRoundObject): MotileRoundObject {

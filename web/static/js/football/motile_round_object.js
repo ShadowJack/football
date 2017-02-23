@@ -33,5 +33,23 @@ export default class MotileRoundObject extends RoundObject {
     if (!this.isCollidingWith(otherObj)) {
       return;
     }
+
+    // Calculate the distance between centers of objects
+    const distX = this.x - otherObj.x; 
+    const distY = this.y - otherObj.y;
+    const distance = Math.sqrt(distX * distX + distY * distY);
+
+    // Cos and Sin of angle between the line that connects centers
+    // of objects and X axis
+    const cosX = distX / distance; 
+    const sinX = distY / distance;
+    
+    // Move motile object so that it doesn't intersect steady object
+    // 1. Calculate point of where objects should touch
+    const pointX = otherObj.x + otherObj.radius * cosX;
+    const pointY = otherObj.y + otherObj.radius * sinX;
+    // 2. Move motile object
+    this.x = pointX + this.radius * cosX;
+    this.y = pointY + this.radius * sinX;
   }
 }
