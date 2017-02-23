@@ -1,5 +1,6 @@
 // @flow
 import PeerConnectionManager from "./peer_connection_manager";
+import Game from "./football/game";
 
 export default class GameLobby {
   peers: Array<Peer>;
@@ -89,8 +90,8 @@ export default class GameLobby {
   }
 
   onGameIsReady() {
-    // TODO: start the game
-    console.log("Game is ready!");
+    let game = new Game();
+    game.start();
   }
 
   notifyPeers(evtName: string, payload: Object) {
