@@ -1,4 +1,5 @@
 // @flow
+import StraightSegment from "./straight_segment";
 
 /* Basic object that has round shape */
 export default class RoundObject {
@@ -13,7 +14,7 @@ export default class RoundObject {
   }
 
   // Check if our object collides with another round object
-  isCollidingWith({x, y, radius}: RoundObject): bool {
+  isCollidingWithRoundObject({x, y, radius}: RoundObject): bool {
     const distX = this.x - x; 
     const distY = this.y - y;
     const squaredDistance = distX * distX + distY * distY;
@@ -22,4 +23,32 @@ export default class RoundObject {
 
     return squaredDistance <= squaredRadiusesSum;
   }
+
+  // Check if our object collides with straight segment
+  isCollidingWithSegment({x1, y1, x2, y2}: StraightSegment): bool {
+
+    // Segment is horizontal
+    if (y1 == y2) {
+      if (x1 < x2) {
+        return this.x > x1 && this.x < x2 && Math.abs(this.y - y1) < this.radius;
+      }
+      else {
+        return this.x > x2 && this.x < x1 && Math.abs(this.y - y1) < this.radius;
+      }
+    }
+
+    // Segment is vertical
+    if (x1 == x2) {
+      if (y1 < y2) {
+        return this.y > y1 && this.y < y2 && Math.abs(this.x - x1) < this.radius;
+      }
+      else {
+        return this.y > y2 && this.y < y1 && Math.abs(this.x - x1) < this.radius;
+      }
+    }
+
+    // Segment is sloped - not required for now
+    return false;
+  }
 }
+

@@ -1,5 +1,7 @@
 // @flow
 import RoundObject from "./round_object";
+import StraightSegment from "./straight_segment";
+
 
 /* Basic round object that has speed */
 export default class MotileRoundObject extends RoundObject {
@@ -14,23 +16,28 @@ export default class MotileRoundObject extends RoundObject {
     this.vy = 0;
   }
 
-  // Checks if our motile object collides with other motile object and if so, changes speeds of both objects according to their momentums.
-  collideWith(otherObj: MotileRoundObject): MotileRoundObject {
+
+  // Checks if our motile object collides with 
+  // other motile object and if so, changes speeds 
+  // of both objects according to their momentums.
+  collideWithMotileRoundObject(otherObj: MotileRoundObject): MotileRoundObject {
     let {x, y, radius, mass, vx, vy} = otherObj;
 
-    if (!this.isCollidingWith(otherObj)) {
+    if (!this.isCollidingWithRoundObject(otherObj)) {
       return otherObj;
     }
 
-    // Objects are colliding => change speed of both objects according to their momentums
+    //TODO: Objects are colliding => change speed of both objects according to their momentums
+    return otherObj;
   }
 
+
   // Checks if our motile object collides with other steady object
-  // and if so, changes speed of our object.
-  collideWith(otherObj: RoundObject): void {
+  // and if so, changes position of our object.
+  collideWithRoundObject(otherObj: RoundObject): void {
     let {x, y, radius} = otherObj;
 
-    if (!this.isCollidingWith(otherObj)) {
+    if (!this.isCollidingWithRoundObject(otherObj)) {
       return;
     }
 
@@ -51,5 +58,34 @@ export default class MotileRoundObject extends RoundObject {
     // 2. Move motile object
     this.x = pointX + this.radius * cosX;
     this.y = pointY + this.radius * sinX;
+  }
+
+
+  // Checks if our motile object collides with straight segment
+  // and if so, changes speed and position
+  collideWithSegment(segment: StraightSegment): void {
+    if (!this.isCollidingWithSegment(segment)) {
+      return;
+    }
+
+    let {x1, y1, x2, y2} = segment;
+
+    // Segment is horizontal
+    if (y1 == y2) {
+      let isAboveSegment = this.y < y1;
+      this.y = isAboveSegment ?  y1 - this.radius : y1 + this.radius;
+      this.vy *= -1;
+      return;
+    }
+
+    // Segment is vertical
+    if (x1 == x2) {
+      let isLeftToSegment = this.x < x1;
+      this.x = isLeftToSegment ?  x1 - this.radius : x1 + this.radius;
+      this.vx *= -1;
+      return;
+    }
+
+    // Segment is sloped - not required for now
   }
 }

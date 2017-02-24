@@ -23,10 +23,10 @@ describe("GameField", () => {
   });
 
   it("changes motile round game object speed if it touches bars", () => {
-    let object = new MotileRoundObject(10, 175, 5, 1);
+    let object = new MotileRoundObject(48, 175, 5, 1);
     gameField.collideWithBars(object);
 
-    expect(object).not.toEqual(new MotileRoundObject(10, 175, 5, 1));
+    expect(object).not.toEqual(new MotileRoundObject(48, 175, 5, 1));
   });
 
   it("doesn't change motile round game object's speed if it doesn't touch field boundaries", () => {
@@ -41,5 +41,19 @@ describe("GameField", () => {
     gameField.collideWithBorders(object);
 
     expect(object).not.toEqual(new MotileRoundObject(50, 100, 10, 1));
+  });
+
+  it("detacts that round object is inside goals", () => {
+    let object = new MotileRoundObject(20, 250, 10, 1);
+    let isInsideGoals = gameField.isInsideGoals(object);
+
+    expect(isInsideGoals).toEqual(true);
+  });
+
+  it("detacts that round object is not inside goals", () => {
+    let object = new MotileRoundObject(400, 250, 10, 1);
+    let isInsideGoals = gameField.isInsideGoals(object);
+
+    expect(isInsideGoals).toEqual(false);
   });
 });
