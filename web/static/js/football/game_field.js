@@ -2,6 +2,7 @@
 import Bar from "./bar"
 import MotileRoundObject from "./motile_round_object"
 import StraightSegment from "./straight_segment"
+import GoalsType from "./goals_type"
 
 
 // Field constants
@@ -64,5 +65,16 @@ export default class GameField {
   collideWithBorders(object: MotileRoundObject): void {
     // Check collision with each border
     this.borders.forEach(border => object.collideWithSegment(border));
+  }
+
+  // Checks if some round object is completely inside goals.
+  // And returns the type of goals the object is inside(left or right)
+  // and false otherwise.
+  isGoalScored(object: MotileRoundObject): bool | number {
+    if (object.x + object.radius <= LEFT_BORDER) return GoalsType.LEFT;
+
+    if (object.x - object.radius >= RIGHT_BORDER) return GoalsType.RIGHT;
+
+    return false;
   }
 }
