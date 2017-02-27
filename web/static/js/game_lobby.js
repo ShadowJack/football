@@ -90,7 +90,9 @@ export default class GameLobby {
   }
 
   onGameIsReady() {
-    let game = new Game();
+    //TODO: randomly assign some team
+    let team = true;
+    let game = new Game(team);
     game.start();
   }
 
