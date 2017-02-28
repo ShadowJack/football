@@ -1,6 +1,7 @@
 // @flow
 import GameField from "./game_field";
 import Player from "./player";
+import NavigationEvent from "./navigation_event";
 
 
 export default class Game {
@@ -9,15 +10,24 @@ export default class Game {
 
   constructor (userTeam: bool) {
     this.gameField = new GameField();
-    //TODO: put player randomly somewhere on the field
     this.userPlayer = new Player(0, 0, userTeam); 
-    //TODO: send info about player team and position to peers
-
     //this.ball = new Ball();
   }
 
   start() {
-    console.log("Not implemented");
+    // Handle keys that manage player movement
+    $(document).keydown(this.handleKeyEvent);
+    $(document).keyup(this.handleKeyEvent);
     return;
   }
+
+  handleKeyEvent(evt: Object) {
+      let navEvent = NavigationEvent.handleKeyEvent(evt);
+      if (navEvent) {
+        this.userPlayer.handleNavigationEvent(navEvent);
+        return;
+      }
+      //TODO: Handle kick event
+  }
+
 }

@@ -21,6 +21,43 @@ export default class NavigationEvent {
     this.direction = direction;
   }
 
+  static handleKeyEvent(evt: Object): ?NavigationEvent {
+    let eventType: string;
+    if (evt.type === "keydown") {
+      eventType = _PRESSED;
+    }
+    else if (evt.type === "keyup") {
+      eventType = _RELEASED;
+    }
+    else {
+      return;
+    }
+
+    let direction: string;
+    switch (evt.which) {
+      case 37:
+      case 65:
+        direction = _LEFT;
+        break;
+      case 38:
+      case 87:
+        direction = _UP;
+        break;
+      case 39:
+      case 68:
+        direction = _RIGHT;
+        break;
+      case 40:
+      case 83:
+        direction = _DOWN;
+        break;
+      default:
+        return;
+    }
+
+    return new NavigationEvent(eventType, direction);
+  }
+
   static get UP(): Direction {
     return _UP;
   }
