@@ -31,15 +31,16 @@ defmodule Football.GameLobbyChannel do
     Football.Presence.update(socket, Guardian.Phoenix.Socket.current_resource(socket), %{status: "ready_to_play"})
 
     # check if all players in the room are ready to play
-    Football.Presence.list(socket)
-    |> Enum.map(fn {user_id, %{metas: [meta | _rest]}} -> meta.status end)
+    presence_state = Football.Presence.list(socket)
+    presence_state
+    |> Enum.map(fn {_user_id, %{metas: [meta | _rest]}} -> meta.status end)
     |> Enum.all?(fn status -> status == "ready_to_play" end)
-    |> if(do: broadcast!(socket, "game_is_ready", %{}))
+    |> if(do: notify_game_is_starting(presence_state, socket))
 
     {:noreply, socket}
   end
 
-  def handle_in("player:status_changed", %{"status" => any_status}, socket) do
+  def handle_in("player:status_changed", %{"status" => _any_status}, socket) do
     {:noreply, socket}
   end
 
@@ -64,4 +65,16 @@ defmodule Football.GameLobbyChannel do
     broadcast!(socket, "signalling:ice", payload)
     {:noreply, socket}
   end
+
+  defp notify_game_is_starting(presence_state, socket) do
+    # Assign teams to all players
+    team_lenght = Enum.count(presence_state) / 2 |> round() 
+    {team1, team2} = presence_state
+    |> Enum.map(fn {user_id, _meta} -> user_id end)
+    |> Enum.split(team_lenght)
+
+    # Notify that game is ready to start
+    broadcast!(socket, "game_is_ready", %{team1: team1, team2: team2})
+  end
+
 end

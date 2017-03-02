@@ -10,7 +10,7 @@ export default class GameLobby {
 
   constructor(socket: any, token: string, lobbyId: string) {
     this.peers = [];
-    this.currentUserId = window.userId;
+    this.currentUserId = window.userId.toString();
 
     socket.connect({guardian_token: token});
 
@@ -42,9 +42,9 @@ export default class GameLobby {
     gameChannel.on("presence_state", data => this.connectToAllUsers(data));
 
     // When some user is disconnected - remove it from peers list
-    gameChannel.on("presence_diff", ({joins, leaves}) => this.onUsersDisconnected(leaves));
+    gameChannel.on("presence_diff", (diff) => this.onPresenceDiff(diff));
 
-    gameChannel.on("game_is_ready", () => this.onGameIsReady());
+    gameChannel.on("game_is_ready", ({team1, team2}) => this.onGameIsReady(team1, team2));
 
     return gameChannel;
   }
@@ -64,8 +64,14 @@ export default class GameLobby {
     }
   }
 
-  onUsersDisconnected(disconnectedUsers: Object) {
-    for(let userId of Object.getOwnPropertyNames(disconnectedUsers)) {
+  onPresenceDiff({joins, leaves}: Object) {
+    for(let userId of Object.getOwnPropertyNames(leaves)) {
+      // If there is the same user in joins and leaves, 
+      // then its metadata has updated, we shouldn't do anything with him
+      if (joins.hasOwnProperty(userId)) {
+        return;
+      }
+
       if (!this.peerConnectionManager) {
         console.log('Connection manager is not found when disconnecting user');
         return;
@@ -82,6 +88,7 @@ export default class GameLobby {
   }
 
   onPeerRemoved(peer: Peer) {
+    console.log("User removed: ", peer);
     $(`#User${peer.id}`).remove();
   }
 
@@ -89,9 +96,9 @@ export default class GameLobby {
     this.gameChannel.push("player:status_changed", {status: "ready_to_play"});
   }
 
-  onGameIsReady() {
-    //TODO: randomly assign some team
-    let team = true;
+  onGameIsReady(team1: Array<string>, team2: Array<string>) {
+    // Check what team current user belongs to
+    let team = team1.indexOf(this.currentUserId) != -1;
     let game = new Game(team);
     game.start();
   }

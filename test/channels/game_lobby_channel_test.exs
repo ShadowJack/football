@@ -64,7 +64,9 @@ defmodule Football.GameLobbyChannelTest do
     Enum.map(1..2, fn user_id -> connect_to_game_lobby(user_id, lobby.id) end)
     |> Enum.map(&push(&1, "player:status_changed", %{"status" => "ready_to_play"}))
 
-    assert_broadcast("game_is_ready", %{})
+    assert_broadcast("game_is_ready", %{team1: team1, team2: team2})
+    assert length(team1) == 1
+    assert length(team2) == 1
+    assert team1 != team2
   end
-
 end

@@ -9,6 +9,7 @@ export default class Game {
   userPlayer: Player;
 
   constructor (userTeam: bool) {
+    console.log("User team:", userTeam);
     this.gameField = new GameField();
     this.userPlayer = new Player(0, 0, userTeam); 
     //this.ball = new Ball();
