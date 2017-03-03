@@ -6,15 +6,29 @@ import GoalsType from "./goals_type"
 
 
 // Field constants
-const UPPER_BORDER = 25;
-const LOWER_BORDER = 475;
-const LEFT_BORDER = 45;
-const RIGHT_BORDER = 755;
+export const UPPER_BORDER = 25;
+export const LOWER_BORDER = 475;
+export const LEFT_BORDER = 45;
+export const RIGHT_BORDER = 755;
 
-const UPPER_GOALS = 175;
-const LOWER_GOALS = 325;
-const LEFT_GOALS = 7;
-const RIGHT_GOALS = 793;
+export const UPPER_GOALS = 175;
+export const LOWER_GOALS = 325;
+export const LEFT_GOALS = 7;
+export const RIGHT_GOALS = 793;
+
+const LEFT_INITIAL_POSITIONS = {
+  "0": {x: LEFT_BORDER + 100, y: UPPER_BORDER + 100},
+  "1": {x: LEFT_BORDER + 100, y: LOWER_BORDER - 100},
+  "2": {x: LEFT_BORDER + 300, y: UPPER_BORDER + 100},
+  "3": {x: LEFT_BORDER + 300, y: LOWER_BORDER - 100}
+};
+
+const RIGHT_INITIAL_POSITIONS = {
+  "0": {x: RIGHT_BORDER - 100, y: UPPER_BORDER + 100},
+  "1": {x: RIGHT_BORDER - 100, y: LOWER_BORDER - 100},
+  "2": {x: RIGHT_BORDER - 300, y: UPPER_BORDER + 100},
+  "3": {x: RIGHT_BORDER - 300, y: LOWER_BORDER - 100}
+};
 
 
 /*
@@ -76,5 +90,17 @@ export default class GameField {
     if (object.x - object.radius >= RIGHT_BORDER) return GoalsType.RIGHT;
 
     return false;
+  }
+
+  // Returns coordinate of initial user position
+  // by its number and team
+  getInitialCoordinates(team: bool, position: number): ?Object {
+    if (position > 4) {
+      console.log("Wrong position number");
+      return null;
+    }
+
+    const strPosition = position.toString();
+    return team ? LEFT_INITIAL_POSITIONS[strPosition] : RIGHT_INITIAL_POSITIONS[strPosition];
   }
 }

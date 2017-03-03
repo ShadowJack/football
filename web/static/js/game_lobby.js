@@ -99,7 +99,8 @@ export default class GameLobby {
   onGameIsReady(team1: Array<string>, team2: Array<string>) {
     // Check what team current user belongs to
     let team = team1.indexOf(this.currentUserId) != -1;
-    let game = new Game(team);
+    let position = team ? team1.indexOf(this.currentUserId) : team2.indexOf(this.currentUserId);
+    let game = new Game(team, position);
     game.start();
   }
 
