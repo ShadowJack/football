@@ -103,4 +103,8 @@ export default class GameField {
     const strPosition = position.toString();
     return team ? LEFT_INITIAL_POSITIONS[strPosition] : RIGHT_INITIAL_POSITIONS[strPosition];
   }
+
+  getCenter() {
+    return {x: (LEFT_BORDER + RIGHT_BORDER) / 2, y: (UPPER_BORDER + LOWER_BORDER) / 2};
+  }
 }
