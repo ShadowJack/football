@@ -33,12 +33,16 @@ export default class Game {
   }
 
   handleKeyEvent(evt: Object) {
-      let navEvent = NavigationEvent.handleKeyEvent(evt);
-      if (navEvent) {
-        this.userPlayer.handleNavigationEvent(navEvent);
-        return;
-      }
-      //TODO: Handle kick event
+    let navEvent = NavigationEvent.handleKeyEvent(evt);
+    if (navEvent) {
+      this.userPlayer.handleNavigationEvent(navEvent);
+      return;
+    }
+
+    // handle "kick" event
+    if(evt.type == "keydown" && evt.which == 32) {
+      this.userPlayer.kick(this.ball);
+    }
   }
 
 }

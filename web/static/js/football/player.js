@@ -2,6 +2,7 @@
 
 import MotileRoundObject from "./motile_round_object";
 import NavigationEvent from "./navigation_event";
+import Ball from "./ball";
 
 
 // Absolute maximum speed for the player
@@ -54,6 +55,38 @@ export default class Player extends MotileRoundObject {
 
     this.vx = vx;
     this.vy = vy;
+  }
+
+  // Update speed of the ball if it's inside
+  // of player's sphere
+  kick(ball: Ball) {
+    const distX = this.x - ball.x; 
+    const distY = this.y - ball.y;
+    const distance = Math.sqrt(distX * distX + distY * distY);
+
+    if(distance > SPHERE_RADIUS + ball.radius) {
+      return;
+    }
+
+
+    // Push the ball along the line that connects
+    // centers of the player and the ball.
+
+    // sin and cos of angle between line that connects
+    // centers of the player and the ball and X axis
+    const cosX = distX / distance; 
+    const sinX = distY / distance;
+
+    // More the distance - less the speed of the ball
+    const MAX_BALL_SPEED = 10;
+    const MIN_BALL_SPEED = 0.1;
+ 
+    // Formula for resulting ball speed: vBall = a * dist + b
+    var a = (MAX_BALL_SPEED - MIN_BALL_SPEED) / (this.radius - SPHERE_RADIUS); 
+    var b = MAX_BALL_SPEED - a * this.radius;
+    var newBallSpeed = a * (distance - ball.radius) + b;
+    ball.vx = cosX * newBallSpeed;
+    ball.vy = sinX * newBallSpeed;
   }
 
 }

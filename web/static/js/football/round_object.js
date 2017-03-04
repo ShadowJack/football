@@ -50,5 +50,12 @@ export default class RoundObject {
     // Segment is sloped - not required for now
     return false;
   }
+
+  // Distance between the centers of two objects
+  distanceTo(other: RoundObject): number {
+    const distX = this.x - other.x; 
+    const distY = this.y - other.y;
+    return Math.sqrt(distX * distX + distY * distY);
+  }
 }
 

@@ -1,5 +1,6 @@
 import Player from "../../../web/static/js/football/player";
 import NavigationEvent from "../../../web/static/js/football/navigation_event";
+import Ball from "../../../web/static/js/football/ball";
 
 
 describe("Player", () => {
@@ -54,5 +55,24 @@ describe("Player", () => {
     player.handleNavigationEvent(releaseEvent);
 
     expect(player.vx).toEqual(0);
+  });
+
+  it("changes the speed of the ball if ball is near and kick is pressed", () => {
+    let player = new Player(200, 200, false);
+    let ball = new Ball(200, 220);
+
+    player.kick(ball);
+
+    expect(ball.vy).not.toEqual(0);
+  });
+
+  it("doesn't affect the ball if it's out of sphere of player's influence", () => {
+    let player = new Player(200, 200, false);
+    let ball = new Ball(200, 300);
+
+    player.kick(ball);
+
+    expect(ball.vx).toEqual(0);
+    expect(ball.vy).toEqual(0);
   });
 });
