@@ -6,7 +6,7 @@ describe("GameField", () => {
   let gameField;
 
   beforeEach(function() {
-    gameField = new GameField();
+    gameField = new GameField(null);
   });
 
   it("constructor initializes goal bars", () => {

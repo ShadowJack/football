@@ -81,7 +81,7 @@ export default class Player extends MotileRoundObject {
     const MAX_BALL_SPEED = 10;
     const MIN_BALL_SPEED = 0.1;
  
-    // Formula for resulting ball speed: vBall = a * dist + b
+    // Formula for resulting ball speed: vBall = a * delta + b
     var a = (MAX_BALL_SPEED - MIN_BALL_SPEED) / (this.radius - SPHERE_RADIUS); 
     var b = MAX_BALL_SPEED - a * this.radius;
     var newBallSpeed = a * (distance - ball.radius) + b;

@@ -9,9 +9,13 @@ export default class Game {
   gameField: GameField;
   userPlayer: Player;
   ball: Ball;
+  canvas: ?HTMLCanvasElement;
 
-  constructor (userTeam: bool, userPosition: number) {
-    this.gameField = new GameField();
+  constructor (userTeam: bool, userPosition: number, canvas: ?HTMLCanvasElement = null) {
+    // Canvas can be empty in tests
+    this.canvas = canvas;
+    let context = canvas && canvas.getContext("2d");
+    this.gameField = new GameField(context);
 
     // Put player on the field according to its initial position
     const playerCoords = this.gameField.getInitialCoordinates(userTeam, userPosition);

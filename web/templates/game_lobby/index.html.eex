@@ -1,7 +1,10 @@
-<h2 id="LobbyName"></h2>
-<ul id="UsersList"></ul>
+<div id="LobbyInfo">
+  <h2 id="LobbyName"></h2>
+  <ul id="UsersList"></ul>
 
-<button type="submit" id="StartGameBtn">Start</button>
+  <button type="submit" id="StartGameBtn">Start</button>
+</div>
+<canvas id="GameCanvas" width="800" height="500" style="position: absolute;"></canvas>
 
 <script>
   window.lobbyId = "<%= @lobby_id %>"

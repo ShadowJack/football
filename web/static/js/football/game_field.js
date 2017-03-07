@@ -1,5 +1,5 @@
 // @flow
-import Bar from "./bar"
+import {default as Bar, BAR_RADIUS} from "./bar"
 import MotileRoundObject from "./motile_round_object"
 import StraightSegment from "./straight_segment"
 import GoalsType from "./goals_type"
@@ -38,8 +38,11 @@ const RIGHT_INITIAL_POSITIONS = {
 export default class GameField {
   bars: Array<Bar>;
   borders: Array<StraightSegment>;
+  context: ?CanvasRenderingContext2D;
 
-  constructor() {
+  constructor(ctx: ?CanvasRenderingContext2D = null) {
+    this.context = ctx;
+
     this.bars = [];
     // Upper-left
     this.bars.push(new Bar(LEFT_BORDER, UPPER_GOALS));
@@ -63,6 +66,8 @@ export default class GameField {
     this.borders.push(new StraightSegment(RIGHT_BORDER, UPPER_BORDER, RIGHT_BORDER, UPPER_GOALS));
     // Lower-right
     this.borders.push(new StraightSegment(RIGHT_BORDER, LOWER_GOALS, RIGHT_BORDER, LOWER_BORDER));
+
+    this.draw();
   }
 
 
@@ -106,5 +111,97 @@ export default class GameField {
 
   getCenter() {
     return {x: (LEFT_BORDER + RIGHT_BORDER) / 2, y: (UPPER_BORDER + LOWER_BORDER) / 2};
+  }
+
+  // Draws the whole field in the current graphics context
+  draw() {
+    if (!this.context) return;
+
+    // Background
+    this.context.fillStyle = "rgb(120, 211, 118)";
+    this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+    // Don't know why, but without this, the first fill operation doesn't fill the whole canvas
+    // but leaves some white stripe at right
+    this.context.fillRect(10, 0, this.context.canvas.width, this.context.canvas.height);
+
+    // Border
+    this.context.strokeStyle = "rgb(17, 49, 17)";
+    this.context.strokeRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+
+    // Field background
+    this.context.fillStyle = "rgb(140, 217, 138)";
+    this.context.fillRect(LEFT_BORDER, UPPER_BORDER, (RIGHT_BORDER - LEFT_BORDER), (LOWER_BORDER - UPPER_BORDER));
+
+    // Field borders
+    this.context.strokeStyle = "rgb(225, 225, 225)";
+    this.context.lineWidth = 3;
+    this.context.strokeRect(LEFT_BORDER, UPPER_BORDER, (RIGHT_BORDER - LEFT_BORDER), (LOWER_BORDER - UPPER_BORDER));
+
+    // Central line
+    const centerX = (LEFT_BORDER + RIGHT_BORDER) / 2;
+    this.context.beginPath();
+    this.context.moveTo(centerX, UPPER_BORDER);
+    this.context.lineTo(centerX, LOWER_BORDER);
+    this.context.stroke();
+
+    // Central circle
+    this.context.beginPath();
+    const centerY = (UPPER_BORDER + LOWER_BORDER) / 2;
+    const centralRadius = (LOWER_BORDER - UPPER_BORDER) / 4;
+    this.context.arc(centerX, centerY, centralRadius, 0, 2 * Math.PI);
+    this.context.stroke();
+
+    // Center
+    this.context.beginPath();
+    this.context.arc(centerX, centerY, 5, 0, 2 * Math.PI);
+    this.context.fillStyle = "rgb(225, 225, 225)";
+    this.context.fill();
+
+    // Goalkeeper areas border
+    // Left
+    this.context.beginPath();
+    this.context.moveTo(LEFT_BORDER, UPPER_GOALS - 20);
+    this.context.lineTo(LEFT_BORDER + 80, UPPER_GOALS - 20);
+    this.context.lineTo(LEFT_BORDER + 80, LOWER_GOALS + 20);
+    this.context.lineTo(LEFT_BORDER, LOWER_GOALS + 20);
+    this.context.stroke();
+    // Right
+    this.context.beginPath();
+    this.context.moveTo(RIGHT_BORDER, UPPER_GOALS - 20);
+    this.context.lineTo(RIGHT_BORDER - 80, UPPER_GOALS - 20);
+    this.context.lineTo(RIGHT_BORDER - 80, LOWER_GOALS + 20);
+    this.context.lineTo(RIGHT_BORDER, LOWER_GOALS + 20);
+    this.context.stroke();
+
+    // Goals lines
+    this.context.strokeStyle = "rgb(102, 102, 102)";
+    // Left
+    this.context.beginPath();
+    this.context.moveTo(LEFT_BORDER, UPPER_GOALS);
+    this.context.lineTo(LEFT_GOALS, UPPER_GOALS);
+    this.context.lineTo(LEFT_GOALS, LOWER_GOALS);
+    this.context.lineTo(LEFT_BORDER, LOWER_GOALS);
+    this.context.stroke()
+    // Right
+    this.context.beginPath();
+    this.context.moveTo(RIGHT_BORDER, UPPER_GOALS);
+    this.context.lineTo(RIGHT_GOALS, UPPER_GOALS);
+    this.context.lineTo(RIGHT_GOALS, LOWER_GOALS);
+    this.context.lineTo(RIGHT_BORDER, LOWER_GOALS);
+    this.context.stroke()
+
+    // Goals bars
+    this.context.beginPath();
+    this.context.arc(LEFT_BORDER, UPPER_GOALS, BAR_RADIUS, 0, 2 * Math.PI);
+    this.context.fill();
+    this.context.beginPath();
+    this.context.arc(LEFT_BORDER, LOWER_GOALS, BAR_RADIUS, 0, 2 * Math.PI);
+    this.context.fill();
+    this.context.beginPath();
+    this.context.arc(RIGHT_BORDER, UPPER_GOALS, BAR_RADIUS, 0, 2 * Math.PI);
+    this.context.fill();
+    this.context.beginPath();
+    this.context.arc(RIGHT_BORDER, LOWER_GOALS, BAR_RADIUS, 0, 2 * Math.PI);
+    this.context.fill();
   }
 }

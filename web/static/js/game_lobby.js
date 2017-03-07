@@ -7,6 +7,7 @@ export default class GameLobby {
   peerConnectionManager: ?PeerConnectionManager;
   currentUserId: string;
   gameChannel: any;
+  game: Game;
 
   constructor(socket: any, token: string, lobbyId: string) {
     this.peers = [];
@@ -100,8 +101,17 @@ export default class GameLobby {
     // Check what team current user belongs to
     let team = team1.indexOf(this.currentUserId) != -1;
     let position = team ? team1.indexOf(this.currentUserId) : team2.indexOf(this.currentUserId);
-    let game = new Game(team, position);
-    game.start();
+
+    let canvas = document.getElementById("GameCanvas");
+    if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
+      console.error("No canvas was found");
+      return;
+    }
+
+    $("#LobbyInfo").hide();
+    $(canvas).show();
+    this.game = new Game(team, position, canvas);
+    this.game.start();
   }
 
   notifyPeers(evtName: string, payload: Object) {
