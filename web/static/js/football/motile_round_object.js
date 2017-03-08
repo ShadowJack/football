@@ -8,6 +8,7 @@ export default class MotileRoundObject extends RoundObject {
   mass: number;
   vx: number;
   vy: number;
+  displayedElement: ?JQuery;
 
   constructor(x: number, y: number, r: number, m: number) {
     super(x, y, r);
