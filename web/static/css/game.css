@@ -7,3 +7,9 @@
   background-color: rgb(250, 236, 112);
   border: 1px solid rgb(0, 0, 0);
 }
+
+.user-player {
+  background-color: rgb(225, 172, 74);
+  border: 1px solid rgb(0, 0, 0);
+  box-shadow: 0 0 4px 8px rgba(20, 20, 20, 0.2);
+}

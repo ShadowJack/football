@@ -9,12 +9,14 @@ export default class MotileRoundObject extends RoundObject {
   vx: number;
   vy: number;
   displayedElement: ?JQuery;
+  cssClass: string;
 
   constructor(x: number, y: number, r: number, m: number) {
     super(x, y, r);
     this.mass = m;
     this.vx = 0;
     this.vy = 0;
+    this.cssClass = "";
   }
 
 
@@ -88,5 +90,20 @@ export default class MotileRoundObject extends RoundObject {
     }
 
     // Segment is sloped - not required for now
+  }
+
+  // Draws the motile round object on the screen
+  draw() {
+    if (!this.displayedElement) {
+      this.displayedElement = $("<div/>", {
+        "class": `motile-round-object ${this.cssClass}`,
+        "width": this.radius * 2,
+        "height": this.radius * 2
+      });
+      $("main").append(this.displayedElement);
+    }
+
+    this.displayedElement.css("left", this.x - this.radius);
+    this.displayedElement.css("top", this.y - this.radius);
   }
 }

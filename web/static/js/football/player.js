@@ -4,6 +4,7 @@ import MotileRoundObject from "./motile_round_object";
 import NavigationEvent from "./navigation_event";
 import Ball from "./ball";
 
+type PlayerType = "user-player" | "ally-player" | "enemy-player";
 
 // Absolute maximum speed for the player
 const MAX_SPEED = 1.7;
@@ -16,19 +17,25 @@ const SPHERE_RADIUS = 24;
 export default class Player extends MotileRoundObject {
   // Team of a player: true - left, false - right
   team: bool;
+  type: PlayerType;
   // State of up/right/down/left directions pressed
   keysPressed: Object;
 
-  constructor(x: number, y: number, team: bool) {
+  constructor(x: number, y: number, team: bool, type: PlayerType) {
     super(x, y, PLAYER_RADIUS, PLAYER_MASS, 0, 0);
 
     this.team = team;
+
+    this.type = type;
+    this.cssClass = `player ${this.type}`;
 
     this.keysPressed = {}; 
     this.keysPressed[NavigationEvent.UP] = false;
     this.keysPressed[NavigationEvent.RIGHT] = false;
     this.keysPressed[NavigationEvent.DOWN] = false;
     this.keysPressed[NavigationEvent.LEFT] = false;
+
+    this.draw();
   }
 
   handleNavigationEvent({type, direction}: NavigationEvent): void {
@@ -88,5 +95,4 @@ export default class Player extends MotileRoundObject {
     ball.vx = cosX * newBallSpeed;
     ball.vy = sinX * newBallSpeed;
   }
-
 }

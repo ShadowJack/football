@@ -23,7 +23,7 @@ export default class Game {
       // TODO: show error message
       return;
     }
-    this.userPlayer = new Player(playerCoords.x, playerCoords.y, userTeam); 
+    this.userPlayer = new Player(playerCoords.x, playerCoords.y, userTeam, "user-player"); 
 
     const ballCoords = this.gameField.getCenter();
     this.ball = new Ball(ballCoords.x, ballCoords.y);
@@ -31,8 +31,8 @@ export default class Game {
 
   start() {
     // Handle keys that manage player movement
-    $(document).keydown(this.handleKeyEvent);
-    $(document).keyup(this.handleKeyEvent);
+    $(document).keydown((evt) => this.handleKeyEvent(evt));
+    $(document).keyup((evt) => this.handleKeyEvent(evt));
     return;
   }
 
