@@ -75,4 +75,8 @@ describe("Player", () => {
     expect(ball.vx).toEqual(0);
     expect(ball.vy).toEqual(0);
   });
+
+  // it("changes position according to current speed and time passed" () => {
+  //   let player = new Player(200, 200, true);
+  // });
 });

@@ -12,6 +12,5 @@ export default class Ball extends MotileRoundObject {
   constructor(x: number, y: number) {
     super(x, y, BALL_RADIUS, BALL_MASS);
     this.cssClass = "ball";
-    this.draw();
   }
 }

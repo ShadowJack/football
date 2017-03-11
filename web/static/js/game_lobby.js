@@ -98,10 +98,6 @@ export default class GameLobby {
   }
 
   onGameIsReady(team1: Array<string>, team2: Array<string>) {
-    // Check what team current user belongs to
-    let team = team1.indexOf(this.currentUserId) != -1;
-    let position = team ? team1.indexOf(this.currentUserId) : team2.indexOf(this.currentUserId);
-
     let canvas = document.getElementById("GameCanvas");
     if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
       console.error("No canvas was found");
@@ -110,7 +106,7 @@ export default class GameLobby {
 
     $("#LobbyInfo").hide();
     $(canvas).show();
-    this.game = new Game(team, position, canvas);
+    this.game = new Game(team1, team2, this.peers, this.currentUserId, canvas);
     this.game.start();
   }
 
