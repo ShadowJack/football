@@ -1,6 +1,7 @@
 import Game from "../../../web/static/js/football/game";
 import {default as GameField, LEFT_BORDER, RIGHT_BORDER, UPPER_BORDER, LOWER_BORDER} from "../../../web/static/js/football/game_field";
 import Player from "../../../web/static/js/football/player";
+import Team from "../../../web/static/js/football/team";
 import Ball from "../../../web/static/js/football/ball";
 
 describe("Game", () => {
@@ -17,7 +18,7 @@ describe("Game", () => {
   it("player's team is assigned during initialization", () => {
     let game = new Game(['0'], ["1"], [], "1");
 
-    expect(game.userPlayer.team).toEqual(false);
+    expect(game.userPlayer.team).toEqual(Team.RIGHT);
   });
 
   it("player is positioned on the field with regard to his team", () => {

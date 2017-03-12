@@ -2,6 +2,7 @@
 
 import GameField from "./game_field";
 import Player from "./player";
+import Team from "./team";
 import NavigationEvent from "./navigation_event";
 import Ball from "./ball";
 
@@ -22,7 +23,6 @@ export default class Game {
     // Save communicaton info
     this.peers = peers;
 
-    // Canvas can be empty in tests
     this.canvas = canvas;
     let context = canvas && canvas.getContext("2d");
     this.gameField = new GameField(context);
@@ -58,8 +58,8 @@ export default class Game {
 
   getPlayerTeamAndPosition(team1: Array<string>, team2: Array<string>, currentUserId: string) {
     // Check what team current user belongs to
-    let team = team1.indexOf(currentUserId) != -1;
-    let position = team ? team1.indexOf(currentUserId) : team2.indexOf(currentUserId);
+    let team = team1.indexOf(currentUserId) != -1 ? Team.LEFT : Team.RIGHT;
+    let position = team == Team.LEFT ? team1.indexOf(currentUserId) : team2.indexOf(currentUserId);
     // Get field coordeinates according to player's initial position
     const playerCoords = this.gameField.getInitialCoordinates(team, position);
     return {playerCoords, team};

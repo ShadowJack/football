@@ -3,6 +3,7 @@
 import MotileRoundObject from "./motile_round_object";
 import NavigationEvent from "./navigation_event";
 import Ball from "./ball";
+import Team from "./team"
 
 // Absolute maximum speed for the player
 const MAX_SPEED = 1.7;
@@ -13,12 +14,12 @@ const SPHERE_RADIUS = 24;
 
 
 export default class Player extends MotileRoundObject {
-  // Team of a player: true - left, false - right
-  team: bool;
+  // Team the player belongs to
+  team: Team;
   // State of up/right/down/left directions pressed
   keysPressed: Object;
 
-  constructor(x: number, y: number, team: bool, type: string) {
+  constructor(x: number, y: number, team: Team, type: string) {
     super(x, y, PLAYER_RADIUS, PLAYER_MASS, 0, 0);
 
     this.team = team;

@@ -3,6 +3,7 @@ import {default as Bar, BAR_RADIUS} from "./bar"
 import MotileRoundObject from "./motile_round_object"
 import StraightSegment from "./straight_segment"
 import GoalsType from "./goals_type"
+import Team from "./team"
 
 
 // Field constants
@@ -99,14 +100,15 @@ export default class GameField {
 
   // Returns coordinate of initial user position
   // by its number and team
-  getInitialCoordinates(team: bool, position: number): ?Object {
+  getInitialCoordinates(team: Team, position: number): ?Object {
     if (position > 4) {
       console.log("Wrong position number");
       return null;
     }
 
     const strPosition = position.toString();
-    return team ? LEFT_INITIAL_POSITIONS[strPosition] : RIGHT_INITIAL_POSITIONS[strPosition];
+    //console.log(team);
+    return team == Team.LEFT ? LEFT_INITIAL_POSITIONS[strPosition] : RIGHT_INITIAL_POSITIONS[strPosition];
   }
 
   getCenter() {

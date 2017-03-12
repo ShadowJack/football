@@ -1,19 +1,20 @@
 import Player from "../../../web/static/js/football/player";
+import Team from "../../../web/static/js/football/team";
 import NavigationEvent from "../../../web/static/js/football/navigation_event";
 import Ball from "../../../web/static/js/football/ball";
 
 
 describe("Player", () => {
   it("is assigned to one of two teams", () => {
-    let player = new Player(0, 0, true);
+    let player = new Player(0, 0, Team.LEFT);
 
     expect(player).toEqual(jasmine.objectContaining({
-      team: true
+      team: Team.LEFT
     }));
   });
 
   it("handles external navigation events by changing player's state", () => {
-    let player = new Player(200, 200, true);
+    let player = new Player(200, 200, Team.LEFT);
 
     let event = new NavigationEvent(NavigationEvent.PRESSED, NavigationEvent.UP);
     player.handleNavigationEvent(event);
@@ -25,7 +26,7 @@ describe("Player", () => {
   });
 
   it("changes player's speed when navigation event is received", () => {
-    let player = new Player(200, 200, false);
+    let player = new Player(200, 200, Team.LEFT);
 
     let event = new NavigationEvent(NavigationEvent.PRESSED, NavigationEvent.RIGHT);
     player.handleNavigationEvent(event);
@@ -34,7 +35,7 @@ describe("Player", () => {
   });
 
   it("has limited max speed", () => {
-    let player = new Player(200, 200, false);
+    let player = new Player(200, 200, Team.RIGHT);
     let event = new NavigationEvent(NavigationEvent.PRESSED, NavigationEvent.UP);
     player.handleNavigationEvent(event);
 
@@ -47,7 +48,7 @@ describe("Player", () => {
   });
 
   it("does't move when all navigation keys are up", () => {
-    let player = new Player(200, 200, false);
+    let player = new Player(200, 200, Team.RIGHT);
     let event = new NavigationEvent(NavigationEvent.PRESSED, NavigationEvent.RIGHT);
     player.handleNavigationEvent(event);
 
@@ -58,7 +59,7 @@ describe("Player", () => {
   });
 
   it("changes the speed of the ball if ball is near and kick is pressed", () => {
-    let player = new Player(200, 200, false);
+    let player = new Player(200, 200, Team.RIGHT);
     let ball = new Ball(200, 220);
 
     player.kick(ball);
@@ -67,7 +68,7 @@ describe("Player", () => {
   });
 
   it("doesn't affect the ball if it's out of sphere of player's influence", () => {
-    let player = new Player(200, 200, false);
+    let player = new Player(200, 200, Team.RIGHT);
     let ball = new Ball(200, 300);
 
     player.kick(ball);
@@ -77,7 +78,7 @@ describe("Player", () => {
   });
 
   it("changes position according to speed and time passed", () => {
-    let player = new Player(200, 200, true);
+    let player = new Player(200, 200, Team.LEFT);
     player.vx = 4;
     player.vy = -3;
 
