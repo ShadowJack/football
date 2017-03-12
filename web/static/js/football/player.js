@@ -50,8 +50,8 @@ export default class Player extends MotileRoundObject {
     // Normalize total speed not to exceed MAX_SPEED
     if (vx !== 0 && vy !== 0) {
       const norm = 1 / Math.sqrt(2);
-      vx /= norm;
-      vy /= norm;
+      vx *= norm;
+      vy *= norm;
     }
 
     this.vx = vx;
@@ -88,5 +88,11 @@ export default class Player extends MotileRoundObject {
     var newBallSpeed = a * (distance - ball.radius) + b;
     ball.vx = cosX * newBallSpeed;
     ball.vy = sinX * newBallSpeed;
+  }
+
+  // Update player position
+  move(timePassed: number) {
+    this.x += this.vx * timePassed;
+    this.y += this.vy * timePassed;
   }
 }

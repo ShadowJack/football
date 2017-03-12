@@ -70,7 +70,7 @@ export default class Game {
     $(document).keydown((evt) => this.handleKeyEvent(evt));
     $(document).keyup((evt) => this.handleKeyEvent(evt));
     this.lastRender = 0;
-    window.requestAnimationFrame(this.gameLoop);
+    window.requestAnimationFrame(timestamp => this.gameLoop(timestamp));
     return;
   }
 
@@ -98,7 +98,7 @@ export default class Game {
     // TODO: this.redraw();
 
     this.lastRender = timestamp;
-    window.requestAnimationFrame(this.gameLoop);
+    window.requestAnimationFrame(timestamp => this.gameLoop(timestamp));
   }
 
   ///
@@ -108,12 +108,19 @@ export default class Game {
     // Normalize time in the game
     let time = millisecondsSinceLastRender / gameTimeNorm;
 
-    // TODO: Update all positions
-    //this.userPlayer.move();
-    //this.otherPlayers.move();
-    //this.ball.move();
+    // Update all positions
+    this.userPlayer.move(time);
+    this.otherPlayers.forEach(player => player.move(time));
+    this.ball.move(time);
 
     // TODO: Check for collisions
+    // TODO: Check for game events
+
+    // Redraw
+    this.userPlayer.draw();
+    this.otherPlayers.forEach(player => player.draw());
+    this.ball.draw();
+
     // Send info to peers
   }
 }

@@ -6,3 +6,4 @@ import "./football/game_test";
 import "./football/game_field_test";
 import "./football/round_object_test";
 import "./football/player_test";
+import "./football/ball_test";

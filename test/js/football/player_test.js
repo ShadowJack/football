@@ -40,7 +40,7 @@ describe("Player", () => {
 
     let maxSpeed = Math.abs(player.vy);
     let anotherEvent = new NavigationEvent(NavigationEvent.PRESSED, NavigationEvent.RIGHT);
-    player.handleNavigationEvent(event);
+    player.handleNavigationEvent(anotherEvent);
 
     let currentSpeed = Math.sqrt(player.vx * player.vx + player.vy * player.vy);
     expect(currentSpeed).toBeCloseTo(maxSpeed, 0.1);
@@ -76,7 +76,15 @@ describe("Player", () => {
     expect(ball.vy).toEqual(0);
   });
 
-  // it("changes position according to current speed and time passed" () => {
-  //   let player = new Player(200, 200, true);
-  // });
+  it("changes position according to speed and time passed", () => {
+    let player = new Player(200, 200, true);
+    player.vx = 4;
+    player.vy = -3;
+
+    const timePassed = 2;
+    player.move(timePassed);
+
+    expect(player.x).toEqual(208);
+    expect(player.y).toEqual(194);
+  });
 });
