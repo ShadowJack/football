@@ -121,14 +121,13 @@ export default class Game {
     this.gameField.collideWithBorders(this.ball);
 
     this.gameField.collideWithBars(this.userPlayer);
-    this.gameField.collideWithBorders(this.userPlayer);
+    this.gameField.collideWithGameBorders(this.userPlayer);
 
-    //TODO: implement
     this.userPlayer.collideWithMotileRoundObject(this.ball);
 
     this.otherPlayers.forEach(player => {
       this.gameField.collideWithBars(player);
-      this.gameField.collideWithBorders(player);
+      this.gameField.collideWithGameBorders(player);
       player.collideWithMotileRoundObject(this.userPlayer);
       player.collideWithMotileRoundObject(this.ball);
       this.otherPlayers.forEach(otherPlayer => {

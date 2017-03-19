@@ -6,6 +6,10 @@ import GoalsType from "./goals_type"
 import Team from "./team"
 
 
+// Game canvas constants
+const GAME_WIDTH = 800;
+const GAME_HEIGHT = 500;
+
 // Field constants
 export const UPPER_BORDER = 25;
 export const LOWER_BORDER = 475;
@@ -23,9 +27,7 @@ const LEFT_INITIAL_POSITIONS = {
   "2": {x: LEFT_BORDER + 300, y: UPPER_BORDER + 100},
   "3": {x: LEFT_BORDER + 300, y: LOWER_BORDER - 100}
 };
-
-const RIGHT_INITIAL_POSITIONS = {
-  "0": {x: RIGHT_BORDER - 100, y: UPPER_BORDER + 100},
+const RIGHT_INITIAL_POSITIONS = { "0": {x: RIGHT_BORDER - 100, y: UPPER_BORDER + 100},
   "1": {x: RIGHT_BORDER - 100, y: LOWER_BORDER - 100},
   "2": {x: RIGHT_BORDER - 300, y: UPPER_BORDER + 100},
   "3": {x: RIGHT_BORDER - 300, y: LOWER_BORDER - 100}
@@ -39,6 +41,7 @@ const RIGHT_INITIAL_POSITIONS = {
 export default class GameField {
   bars: Array<Bar>;
   borders: Array<StraightSegment>;
+  gameBorders: Array<StraightSegment>;
   context: ?CanvasRenderingContext2D;
 
   constructor(ctx: ?CanvasRenderingContext2D = null) {
@@ -77,6 +80,13 @@ export default class GameField {
     this.borders.push(new StraightSegment(RIGHT_BORDER, UPPER_GOALS, RIGHT_GOALS, UPPER_GOALS)); 
     this.borders.push(new StraightSegment(RIGHT_BORDER, LOWER_GOALS, RIGHT_GOALS, LOWER_GOALS)); 
     this.borders.push(new StraightSegment(RIGHT_GOALS, UPPER_GOALS, RIGHT_GOALS, LOWER_GOALS)); 
+
+    // Game borders
+    this.gameBorders = [];
+    this.gameBorders.push(new StraightSegment(0, 0, GAME_WIDTH, 0)); 
+    this.gameBorders.push(new StraightSegment(GAME_WIDTH, 0, GAME_WIDTH, GAME_HEIGHT)); 
+    this.gameBorders.push(new StraightSegment(GAME_WIDTH, GAME_HEIGHT, 0, GAME_HEIGHT)); 
+    this.gameBorders.push(new StraightSegment(0, GAME_HEIGHT, 0, 0)); 
   }
 
 
@@ -87,12 +97,18 @@ export default class GameField {
     this.bars.forEach(bar => object.collideWithRoundObject(bar));
   }
 
-
   // Checks for collision with each field border
   // and modifies the state of passed object if collision occures
   collideWithBorders(object: MotileRoundObject): void {
     // Check collision with each border
     this.borders.forEach(border => object.collideWithSegment(border));
+  }
+
+  // Checks for collision with game borders
+  // and modifies the state of passed object if collision occures
+  collideWithGameBorders(object: MotileRoundObject): void {
+    // Check collision with each border
+    this.gameBorders.forEach(border => object.collideWithSegment(border));
   }
 
   // Checks if some round object is completely inside goals.

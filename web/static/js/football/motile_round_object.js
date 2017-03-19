@@ -20,21 +20,6 @@ export default class MotileRoundObject extends RoundObject {
   }
 
 
-  // Checks if our motile object collides with 
-  // other motile object and if so, changes speeds 
-  // of both objects according to their momentums.
-  collideWithMotileRoundObject(otherObj: MotileRoundObject): MotileRoundObject {
-    let {x, y, radius, mass, vx, vy} = otherObj;
-
-    if (!this.isCollidingWithRoundObject(otherObj)) {
-      return otherObj;
-    }
-
-    //TODO: Objects are colliding => change speed of both objects according to their momentums
-    return otherObj;
-  }
-
-
   // Checks if our motile object collides with other steady object
   // and if so, changes position of our object.
   collideWithRoundObject(otherObj: RoundObject): void {

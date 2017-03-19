@@ -33,30 +33,55 @@ export default class Player extends MotileRoundObject {
     this.keysPressed[NavigationEvent.LEFT] = false;
   }
 
-  // Override: 
-  // Checks if the player collides with straight segment
-  // and if so, changes speed and position
-  collideWithSegment(segment: StraightSegment): void {
-    if (!this.isCollidingWithSegment(segment)) {
-      return;
+  // Checks if our player collides with 
+  // other motile object and if so, changes speed 
+  // of other object according to their momentums.
+  collideWithMotileRoundObject(otherObj: MotileRoundObject): MotileRoundObject {
+    if (!this.isCollidingWithRoundObject(otherObj)) {
+      return otherObj;
     }
 
-    let {x1, y1, x2, y2} = segment;
+    let {x, y, radius, mass, vx, vy} = otherObj;
 
-    // Segment is horizontal
-    if (y1 == y2) {
-      let isAboveSegment = this.y < y1;
-      this.y = isAboveSegment ?  y1 - this.radius : y1 + this.radius;
-      return;
-    }
+    // Calculate distance
+    const distX = this.x - x; 
+    const distY = this.y - y;
+    const distance = Math.sqrt(distX * distX + distY * distY);
 
-    // Segment is vertical
-    if (x1 == x2) {
-      let isLeftToSegment = this.x < x1;
-      this.x = isLeftToSegment ?  x1 - this.radius : x1 + this.radius;
-      return;
-    }
+    // Calculate angle between line that connects centers of circles
+    // and projection of this line to X axis
+    const cosX = distX / distance; 
+    const sinX = distY / distance;
+    
+    // Rotate vectors of speed so that the centers of both circles are placed on the X axis
+    const rotatedThisVX = this.vx * cosX + this.vy * sinX;
+    const rotatedThisVY = this.vx * (-sinX) + this.vy * cosX;
+    const rotatedObjVX = vx * cosX + vy * sinX;
+    const rotatedObjVY = vx * (-sinX) + vy * cosX;
+    
+    // Calculate new speeds - only X components are changed
+    const newRotatedThisVX = ((this.mass - mass) * rotatedThisVX + 2 * mass * rotatedObjVX) / (this.mass + mass);
+    const newRotatedObjVX = rotatedThisVX + newRotatedThisVX - rotatedObjVX;
+
+    // Rotate speeds back
+    otherObj.vx = newRotatedObjVX * cosX - rotatedObjVY * sinX;
+    otherObj.vy = newRotatedObjVX * sinX + rotatedObjVY * cosX;
+
+    // Place both object so that they are not intersecting
+    // 1. Calc the center of line that connects centers of
+    // both objects
+    const midX = (this.x + x) / 2;
+    const midY = (this.y + y) / 2;
+    // 2. Move both objects
+    this.x = midX + this.radius * cosX;
+    this.y = midY + this.radius * sinX;
+    otherObj.x = midX - radius * cosX;
+    otherObj.y = midY - radius * sinX;
+ 
+    return otherObj;
   }
+
+
 
   handleNavigationEvent({type, direction}: NavigationEvent): void {
     this.keysPressed[direction] = type === NavigationEvent.PRESSED;
