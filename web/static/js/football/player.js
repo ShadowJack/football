@@ -33,6 +33,31 @@ export default class Player extends MotileRoundObject {
     this.keysPressed[NavigationEvent.LEFT] = false;
   }
 
+  // Override: 
+  // Checks if the player collides with straight segment
+  // and if so, changes speed and position
+  collideWithSegment(segment: StraightSegment): void {
+    if (!this.isCollidingWithSegment(segment)) {
+      return;
+    }
+
+    let {x1, y1, x2, y2} = segment;
+
+    // Segment is horizontal
+    if (y1 == y2) {
+      let isAboveSegment = this.y < y1;
+      this.y = isAboveSegment ?  y1 - this.radius : y1 + this.radius;
+      return;
+    }
+
+    // Segment is vertical
+    if (x1 == x2) {
+      let isLeftToSegment = this.x < x1;
+      this.x = isLeftToSegment ?  x1 - this.radius : x1 + this.radius;
+      return;
+    }
+  }
+
   handleNavigationEvent({type, direction}: NavigationEvent): void {
     this.keysPressed[direction] = type === NavigationEvent.PRESSED;
     this.updateSpeed();
@@ -74,11 +99,6 @@ export default class Player extends MotileRoundObject {
     // Push the ball along the line that connects
     // centers of the player and the ball.
 
-    // sin and cos of angle between line that connects
-    // centers of the player and the ball and X axis
-    const cosX = distX / distance; 
-    const sinX = distY / distance;
-
     // More the distance - less the speed of the ball
     const MAX_BALL_SPEED = 10;
     const MIN_BALL_SPEED = 0.1;
@@ -87,6 +107,12 @@ export default class Player extends MotileRoundObject {
     var a = (MAX_BALL_SPEED - MIN_BALL_SPEED) / (this.radius - SPHERE_RADIUS); 
     var b = MAX_BALL_SPEED - a * this.radius;
     var newBallSpeed = a * (distance - ball.radius) + b;
+
+    // sin and cos of angle between line that connects
+    // centers of the player and the ball and X axis
+    const cosX = -distX / distance; 
+    const sinX = -distY / distance;
+
     ball.vx = cosX * newBallSpeed;
     ball.vy = sinX * newBallSpeed;
   }

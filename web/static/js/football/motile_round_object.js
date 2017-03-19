@@ -66,9 +66,10 @@ export default class MotileRoundObject extends RoundObject {
 
   // Checks if our motile object collides with straight segment
   // and if so, changes speed and position
-  collideWithSegment(segment: StraightSegment): void {
+  // Returns true if collision occured
+  collideWithSegment(segment: StraightSegment): bool {
     if (!this.isCollidingWithSegment(segment)) {
-      return;
+      return false;
     }
 
     let {x1, y1, x2, y2} = segment;
@@ -77,19 +78,17 @@ export default class MotileRoundObject extends RoundObject {
     if (y1 == y2) {
       let isAboveSegment = this.y < y1;
       this.y = isAboveSegment ?  y1 - this.radius : y1 + this.radius;
-      this.vy *= -1;
-      return;
+      return true;
     }
 
     // Segment is vertical
     if (x1 == x2) {
       let isLeftToSegment = this.x < x1;
       this.x = isLeftToSegment ?  x1 - this.radius : x1 + this.radius;
-      this.vx *= -1;
-      return;
+      return true;
     }
 
-    // Segment is sloped - not required for now
+    return false;
   }
 
   // Draws the motile round object on the screen

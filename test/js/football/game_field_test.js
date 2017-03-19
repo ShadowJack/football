@@ -44,6 +44,14 @@ describe("GameField", () => {
     expect(object).not.toEqual(new MotileRoundObject(50, 100, 10, 1));
   });
 
+  it("changes motile round game object speed if it touches goal boundaries", () => {
+    let object = new MotileRoundObject(15, 250, 10, 1);
+    gameField.collideWithBorders(object);
+
+    expect(object.x).toEqual(17);
+  });
+
+
   it("detacts that round object is inside goals", () => {
     let object = new MotileRoundObject(20, 250, 10, 1);
     let goals = gameField.isGoalScored(object);

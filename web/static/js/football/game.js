@@ -26,6 +26,7 @@ export default class Game {
     this.canvas = canvas;
     let context = canvas && canvas.getContext("2d");
     this.gameField = new GameField(context);
+    this.gameField.draw();
 
     /// Create the player object owned by current user
     let {playerCoords, team} = this.getPlayerTeamAndPosition(team1, team2, currentUserId);
@@ -95,7 +96,9 @@ export default class Game {
 
     this.updateState(millisecondsSinceLastRender);
 
-    // TODO: this.redraw();
+    this.redraw();
+
+    // TODO: Send info to peers
 
     this.lastRender = timestamp;
     window.requestAnimationFrame(timestamp => this.gameLoop(timestamp));
@@ -113,14 +116,34 @@ export default class Game {
     this.otherPlayers.forEach(player => player.move(time));
     this.ball.move(time);
 
-    // TODO: Check for collisions
+    // Check for collisions
+    this.gameField.collideWithBars(this.ball); 
+    this.gameField.collideWithBorders(this.ball);
+
+    this.gameField.collideWithBars(this.userPlayer);
+    this.gameField.collideWithBorders(this.userPlayer);
+
+    //TODO: implement
+    this.userPlayer.collideWithMotileRoundObject(this.ball);
+
+    this.otherPlayers.forEach(player => {
+      this.gameField.collideWithBars(player);
+      this.gameField.collideWithBorders(player);
+      player.collideWithMotileRoundObject(this.userPlayer);
+      player.collideWithMotileRoundObject(this.ball);
+      this.otherPlayers.forEach(otherPlayer => {
+        if (otherPlayer == player) return;
+        player.collideWithMotileRoundObject(otherPlayer);
+      });
+    });
+
     // TODO: Check for game events
 
-    // Redraw
+  }
+
+  redraw() {
     this.userPlayer.draw();
     this.otherPlayers.forEach(player => player.draw());
     this.ball.draw();
-
-    // Send info to peers
   }
 }

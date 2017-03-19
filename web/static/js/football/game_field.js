@@ -68,7 +68,15 @@ export default class GameField {
     // Lower-right
     this.borders.push(new StraightSegment(RIGHT_BORDER, LOWER_GOALS, RIGHT_BORDER, LOWER_BORDER));
 
-    this.draw();
+    // Goals borders
+    // Left
+    this.borders.push(new StraightSegment(LEFT_GOALS, UPPER_GOALS, LEFT_BORDER, UPPER_GOALS)); 
+    this.borders.push(new StraightSegment(LEFT_GOALS, LOWER_GOALS, LEFT_BORDER, LOWER_GOALS)); 
+    this.borders.push(new StraightSegment(LEFT_GOALS, UPPER_GOALS, LEFT_GOALS, LOWER_GOALS)); 
+    // Right
+    this.borders.push(new StraightSegment(RIGHT_BORDER, UPPER_GOALS, RIGHT_GOALS, UPPER_GOALS)); 
+    this.borders.push(new StraightSegment(RIGHT_BORDER, LOWER_GOALS, RIGHT_GOALS, LOWER_GOALS)); 
+    this.borders.push(new StraightSegment(RIGHT_GOALS, UPPER_GOALS, RIGHT_GOALS, LOWER_GOALS)); 
   }
 
 

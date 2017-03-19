@@ -64,7 +64,7 @@ describe("Player", () => {
 
     player.kick(ball);
 
-    expect(ball.vy).not.toEqual(0);
+    expect(ball.vy).toBeGreaterThan(0);
   });
 
   it("doesn't affect the ball if it's out of sphere of player's influence", () => {
