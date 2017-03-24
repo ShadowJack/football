@@ -4,7 +4,8 @@
 
   <button type="submit" id="StartGameBtn">Start</button>
 </div>
-<canvas id="GameCanvas" width="800" height="500" style="position: absolute;"></canvas>
+<canvas id="GameCanvas" width="800" height="500"></canvas>
+<div id="InfoMessage"></div>
 
 <script>
   window.lobbyId = "<%= @lobby_id %>"

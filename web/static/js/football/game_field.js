@@ -2,7 +2,6 @@
 import {default as Bar, BAR_RADIUS} from "./bar"
 import MotileRoundObject from "./motile_round_object"
 import StraightSegment from "./straight_segment"
-import GoalsType from "./goals_type"
 import Team from "./team"
 
 
@@ -112,12 +111,12 @@ export default class GameField {
   }
 
   // Checks if some round object is completely inside goals.
-  // And returns the type of goals the object is inside(left or right)
+  // And returns the team who scored the goal
   // and false otherwise.
-  isGoalScored(object: MotileRoundObject): bool | number {
-    if (object.x + object.radius <= LEFT_BORDER) return GoalsType.LEFT;
+  isGoalScored(object: MotileRoundObject): bool | Team {
+    if (object.x + object.radius <= LEFT_BORDER) return Team.RIGHT;
 
-    if (object.x - object.radius >= RIGHT_BORDER) return GoalsType.RIGHT;
+    if (object.x - object.radius >= RIGHT_BORDER) return Team.LEFT;
 
     return false;
   }
@@ -131,7 +130,6 @@ export default class GameField {
     }
 
     const strPosition = position.toString();
-    //console.log(team);
     return team == Team.LEFT ? LEFT_INITIAL_POSITIONS[strPosition] : RIGHT_INITIAL_POSITIONS[strPosition];
   }
 

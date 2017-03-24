@@ -5,6 +5,8 @@ import StraightSegment from "./straight_segment";
 
 /* Basic round object that has speed */
 export default class MotileRoundObject extends RoundObject {
+  initialX: number;
+  initialY: number;
   mass: number;
   vx: number;
   vy: number;
@@ -13,12 +15,22 @@ export default class MotileRoundObject extends RoundObject {
 
   constructor(x: number, y: number, r: number, m: number) {
     super(x, y, r);
+    this.initialX = x;
+    this.initialY = y;
     this.mass = m;
     this.vx = 0;
     this.vy = 0;
     this.cssClass = "";
   }
 
+
+  // Resets current object to its initial position
+  reset() {
+    this.x = this.initialX;
+    this.y = this.initialY;
+    this.vx = 0;
+    this.vy = 0;
+  }
 
   // Checks if our motile object collides with other steady object
   // and if so, changes position of our object.

@@ -1,3 +1,28 @@
+#InfoMessage {
+  display: none;
+
+  width: 300px;
+  height: 100px;
+  position: absolute;
+  top: 200px;
+  left: 250px;
+  z-index: 10;
+
+  background-color: rgba(120, 211, 210, 0.9);
+  border: 2px solid rgb(56, 173, 171);
+  border-radius: 2px;
+
+  text-align: center;
+  line-height: 100px;
+
+  color: white;
+  font-size: 20px;
+}
+
+#GameCanvas {
+  position: absolute;
+}
+
 .motile-round-object {
   position: absolute;
   border-radius: 50%;

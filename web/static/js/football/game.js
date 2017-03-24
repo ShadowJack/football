@@ -117,27 +117,45 @@ export default class Game {
     this.ball.move(time);
 
     // Check for collisions
+    // Ball * Field
     this.gameField.collideWithBars(this.ball); 
     this.gameField.collideWithBorders(this.ball);
 
+    // Current player * Field
     this.gameField.collideWithBars(this.userPlayer);
     this.gameField.collideWithGameBorders(this.userPlayer);
 
+    // Current player * Ball
     this.userPlayer.collideWithMotileRoundObject(this.ball);
 
     this.otherPlayers.forEach(player => {
+      // Other player * Field
       this.gameField.collideWithBars(player);
       this.gameField.collideWithGameBorders(player);
+      // Other player * Current player
       player.collideWithMotileRoundObject(this.userPlayer);
+      // Other player * Ball
       player.collideWithMotileRoundObject(this.ball);
+      // Other player * All rest players
       this.otherPlayers.forEach(otherPlayer => {
         if (otherPlayer == player) return;
         player.collideWithMotileRoundObject(otherPlayer);
       });
     });
 
-    // TODO: Check for game events
-
+    /// Check game events
+    // Check if the goal is scored
+    const teamScored = this.gameField.isGoalScored(this.ball);
+    if (teamScored) {
+      // Display congratz message for a second
+      $("#InfoMessage").html(`${teamScored == Team.LEFT ? "Left" : "Right"} team has scored a goal!`);
+      $("#InfoMessage").show();
+      setTimeout(() => $("#InfoMessage").hide(), 1000)
+      // Reset the ball and all players
+      this.ball.reset();
+      this.userPlayer.reset();
+      this.otherPlayers.forEach(p => p.reset());
+    }
   }
 
   redraw() {

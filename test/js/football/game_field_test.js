@@ -1,6 +1,6 @@
 import GameField from "../../../web/static/js/football/game_field";
 import MotileRoundObject from "../../../web/static/js/football/motile_round_object";
-import GoalsType from "../../../web/static/js/football/goals_type";
+import Team from "../../../web/static/js/football/team";
 
 describe("GameField", () => {
   let gameField;
@@ -59,17 +59,17 @@ describe("GameField", () => {
     expect(object.y).toEqual(10);
   });
 
-  it("detacts that round object is inside goals", () => {
+  it("detects that goal is scored", () => {
     let object = new MotileRoundObject(20, 250, 10, 1);
-    let goals = gameField.isGoalScored(object);
+    let team = gameField.isGoalScored(object);
 
-    expect(goals).toEqual(GoalsType.LEFT);
+    expect(team).toEqual(Team.RIGHT);
   });
 
-  it("detacts that round object is not inside goals", () => {
+  it("detects that round object is not inside goals", () => {
     let object = new MotileRoundObject(400, 250, 10, 1);
-    let isInsideGoals = gameField.isGoalScored(object);
+    let isGoalScored = gameField.isGoalScored(object);
 
-    expect(isInsideGoals).toEqual(false);
+    expect(isGoalScored).toEqual(false);
   });
 });
