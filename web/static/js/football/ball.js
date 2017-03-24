@@ -5,8 +5,8 @@ import RoundObject from "./round_object";
 import StraightSegment from "./straight_segment";
 
 
-const TENSION_COEFF = 0.95;
-const BALL_MASS = 1;
+const TENSION_COEFF = 0.96;
+const BALL_MASS = 1.5;
 const BALL_RADIUS = 14;
 
 export default class Ball extends MotileRoundObject {
@@ -62,7 +62,7 @@ export default class Ball extends MotileRoundObject {
     for(let i = 0; i < time; i++) {
       position += speed;
       speed *= TENSION_COEFF;
-      if (Math.abs(speed) < 0.1) {
+      if (Math.abs(speed) < 0.05) {
         speed = 0;
         break;
       }

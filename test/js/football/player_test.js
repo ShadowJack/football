@@ -88,4 +88,15 @@ describe("Player", () => {
     expect(player.x).toEqual(208);
     expect(player.y).toEqual(194);
   });
+
+  it("collides with round object and is placed so that objects are touching", () => {
+    const player = new Player(200, 200, Team.LEFT);
+    player.vx = 5;
+    const ball = new Ball(210, 200);
+
+    player.collideWithRoundObject(ball);
+
+    const distance = Math.sqrt((player.x - ball.x) * (player.x - ball.x) + (player.y - ball.y) * (player.y - ball.y));
+    expect(distance).toEqual(30); // 30 is the sum of ball and player radiuses
+  })
 });
