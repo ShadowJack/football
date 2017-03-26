@@ -6,6 +6,7 @@
 </div>
 <div id="InfoMessage"></div>
 <div id="GameTimer"></div>
+<div id="Score"></div>
 
 <script>
   window.lobbyId = "<%= @lobby_id %>"

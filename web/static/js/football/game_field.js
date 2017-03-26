@@ -111,14 +111,13 @@ export default class GameField {
   }
 
   // Checks if some round object is completely inside goals.
-  // And returns the team who scored the goal
-  // and false otherwise.
-  isGoalScored(object: MotileRoundObject): bool | Team {
+  // And returns the team who scored the goal, null if goal is not scored.
+  isGoalScored(object: MotileRoundObject): ?Team {
     if (object.x + object.radius <= LEFT_BORDER) return Team.RIGHT;
 
     if (object.x - object.radius >= RIGHT_BORDER) return Team.LEFT;
 
-    return false;
+    return null;
   }
 
   // Returns coordinate of initial user position

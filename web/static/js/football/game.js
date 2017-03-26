@@ -16,6 +16,7 @@ export default class Game {
   ball: Ball;
   // Time since the game started
   gameTimer: number;
+  score: Map<Team, number>;
 
   canvas: HTMLCanvasElement;
   lastRender: number;
@@ -25,6 +26,11 @@ export default class Game {
   constructor (team1: Array<string>, team2: Array<string>, peers: Array<Peer>, currentUserId: string) {
     // Save communicaton info
     this.peers = peers;
+
+    // Setup initial score
+    this.score = new Map;
+    this.score.set(Team.LEFT, 0);
+    this.score.set(Team.RIGHT, 0);
 
     // Create game canvas
     this.canvas = document.createElement("canvas");
@@ -163,9 +169,11 @@ export default class Game {
     /// Check game events
     // Check if the goal is scored
     const teamScored = this.gameField.isGoalScored(this.ball);
-    if (teamScored) {
+    if (teamScored != null) {
       // Display congratz message for a second
       this.showInfoMessage(`${teamScored == Team.LEFT ? "Left" : "Right"} team has scored a goal!`, 1000);
+      this.score.set(teamScored, this.score.get(teamScored) + 1);
+
       // Reset the ball and all players
       this.ball.reset();
       this.userPlayer.reset();
@@ -192,8 +200,11 @@ export default class Game {
     const seconds = fullSeconds % 60;
     $("#GameTimer").text(`0${minutes}:${seconds < 10 ? "0" + seconds : seconds}`);
 
+    $("#Score").text(`${this.score.get(Team.LEFT)}:${this.score.get(Team.RIGHT)}`);
+
     this.userPlayer.draw();
     this.otherPlayers.forEach(player => player.draw());
     this.ball.draw();
+
   }
 }

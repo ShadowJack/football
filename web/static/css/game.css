@@ -32,6 +32,17 @@
   color: rgba(51, 51, 51, 0.8);
 }
 
+#Score {
+  position: absolute;
+  width: 100px;
+  top: -2px;
+  left: 350px;
+
+  font-size: 20px;
+  text-align: center;
+  color: rgba(51, 51, 51, 0.9);
+}
+
 #GameCanvas {
   position: absolute;
 }

@@ -68,8 +68,8 @@ describe("GameField", () => {
 
   it("detects that round object is not inside goals", () => {
     let object = new MotileRoundObject(400, 250, 10, 1);
-    let isGoalScored = gameField.isGoalScored(object);
+    let team = gameField.isGoalScored(object);
 
-    expect(isGoalScored).toEqual(false);
+    expect(team).toEqual(null);
   });
 });
