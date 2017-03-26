@@ -6,25 +6,35 @@ import Team from "./team";
 import NavigationEvent from "./navigation_event";
 import Ball from "./ball";
 
-const gameTimeNorm = 16;
+const GAME_TIME_NORM = 16;
+const GAME_TIME_TOTAL_SECONDS = 60 * 6;
 
 export default class Game {
   gameField: GameField;
   userPlayer: Player;
   otherPlayers: Map<string, Player>;
   ball: Ball;
+  // Time since the game started
+  gameTimer: number;
 
-  canvas: ?HTMLCanvasElement;
+  canvas: HTMLCanvasElement;
   lastRender: number;
 
   peers: Array<Peer>;
 
-  constructor (team1: Array<string>, team2: Array<string>, peers: Array<Peer>, currentUserId: string, canvas: ?HTMLCanvasElement = null) {
+  constructor (team1: Array<string>, team2: Array<string>, peers: Array<Peer>, currentUserId: string) {
     // Save communicaton info
     this.peers = peers;
 
-    this.canvas = canvas;
-    let context = canvas && canvas.getContext("2d");
+    // Create game canvas
+    this.canvas = document.createElement("canvas");
+    this.canvas.id = "GameCanvas";
+    this.canvas.setAttribute("width", "800");
+    this.canvas.setAttribute("height", "500");
+    $("main").prepend(this.canvas);
+
+    // Draw game field
+    let context = this.canvas && this.canvas.getContext("2d");
     this.gameField = new GameField(context);
     this.gameField.draw();
 
@@ -71,6 +81,10 @@ export default class Game {
     $(document).keydown((evt) => this.handleKeyEvent(evt));
     $(document).keyup((evt) => this.handleKeyEvent(evt));
     this.lastRender = 0;
+    // Start game timer
+    this.gameTimer = 0;
+    $("#GameTimer").show();
+
     window.requestAnimationFrame(timestamp => this.gameLoop(timestamp));
     return;
   }
@@ -93,6 +107,9 @@ export default class Game {
   // redraw everything movable, wait for another iteration
   gameLoop(timestamp: number) {
     let millisecondsSinceLastRender = timestamp - this.lastRender;
+    if (this.lastRender != 0) {
+      this.gameTimer += millisecondsSinceLastRender;
+    }
 
     this.updateState(millisecondsSinceLastRender);
 
@@ -109,7 +126,7 @@ export default class Game {
   // since the last update
   updateState(millisecondsSinceLastRender: number) {
     // Normalize time in the game
-    let time = millisecondsSinceLastRender / gameTimeNorm;
+    let time = millisecondsSinceLastRender / GAME_TIME_NORM;
 
     // Update all positions
     this.userPlayer.move(time);
@@ -148,17 +165,33 @@ export default class Game {
     const teamScored = this.gameField.isGoalScored(this.ball);
     if (teamScored) {
       // Display congratz message for a second
-      $("#InfoMessage").html(`${teamScored == Team.LEFT ? "Left" : "Right"} team has scored a goal!`);
-      $("#InfoMessage").show();
-      setTimeout(() => $("#InfoMessage").hide(), 1000)
+      this.showInfoMessage(`${teamScored == Team.LEFT ? "Left" : "Right"} team has scored a goal!`, 1000);
       // Reset the ball and all players
       this.ball.reset();
       this.userPlayer.reset();
       this.otherPlayers.forEach(p => p.reset());
     }
+
+    // Check if game time is out
+    if (this.gameTimer / 1000 >= GAME_TIME_TOTAL_SECONDS) {
+      this.showInfoMessage("Time has run out");
+    }
+  }
+
+  showInfoMessage(text: string, duration: number = 0) {
+    $("#InfoMessage").html(text);
+    $("#InfoMessage").show();
+    if (duration) {
+      setTimeout(() => $("#InfoMessage").hide(), 1000);
+    }
   }
 
   redraw() {
+    const fullSeconds = Math.floor(this.gameTimer / 1000);
+    const minutes = Math.floor(fullSeconds / 60);
+    const seconds = fullSeconds % 60;
+    $("#GameTimer").text(`0${minutes}:${seconds < 10 ? "0" + seconds : seconds}`);
+
     this.userPlayer.draw();
     this.otherPlayers.forEach(player => player.draw());
     this.ball.draw();

@@ -98,15 +98,8 @@ export default class GameLobby {
   }
 
   onGameIsReady(team1: Array<string>, team2: Array<string>) {
-    let canvas = document.getElementById("GameCanvas");
-    if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
-      console.error("No canvas was found");
-      return;
-    }
-
     $("#LobbyInfo").hide();
-    $(canvas).show();
-    this.game = new Game(team1, team2, this.peers, this.currentUserId, canvas);
+    this.game = new Game(team1, team2, this.peers, this.currentUserId);
     this.game.start();
   }
 

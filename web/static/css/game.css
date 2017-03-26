@@ -19,6 +19,19 @@
   font-size: 20px;
 }
 
+#GameTimer {
+  display: none;
+
+  position: absolute;
+  width: 100px;
+  top: -2px;
+  left: 650px;
+
+  font-size: 20px;
+  text-align: center;
+  color: rgba(51, 51, 51, 0.8);
+}
+
 #GameCanvas {
   position: absolute;
 }
