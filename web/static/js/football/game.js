@@ -8,10 +8,12 @@ import Ball from "./ball";
 
 const GAME_TIME_NORM = 16;
 const GAME_TIME_TOTAL_SECONDS = 60 * 6;
+const BROADCAST_PERIOD = 50;
 
 export default class Game {
   gameField: GameField;
   userPlayer: Player;
+  userId: string;
   otherPlayers: Map<string, Player>;
   ball: Ball;
   // Time since the game started
@@ -20,12 +22,20 @@ export default class Game {
 
   canvas: HTMLCanvasElement;
   lastRender: number;
+  lastBroadcast: number;
 
   peers: Array<Peer>;
 
   constructor (team1: Array<string>, team2: Array<string>, peers: Array<Peer>, currentUserId: string) {
+    this.userId = currentUserId;
+
     // Save communicaton info
     this.peers = peers;
+    this.peers.forEach(peer => {
+      if (!peer.dataChannel) return;
+
+      peer.dataChannel.onmessage = (event) => this.onMessageReceived(event);
+    });
 
     // Setup initial score
     this.score = new Map;
@@ -87,6 +97,7 @@ export default class Game {
     $(document).keydown((evt) => this.handleKeyEvent(evt));
     $(document).keyup((evt) => this.handleKeyEvent(evt));
     this.lastRender = 0;
+    this.lastBroadcast = 0;
     // Start game timer
     this.gameTimer = 0;
     $("#GameTimer").show();
@@ -99,12 +110,14 @@ export default class Game {
     let navEvent = NavigationEvent.handleKeyEvent(evt);
     if (navEvent) {
       this.userPlayer.handleNavigationEvent(navEvent);
+      this.broadcastState();
       return;
     }
 
     // handle "kick" event
     if(evt.type == "keydown" && evt.which == 32) {
       this.userPlayer.kick(this.ball);
+      this.broadcastState();
     }
   }
 
@@ -121,7 +134,11 @@ export default class Game {
 
     this.redraw();
 
-    // TODO: Send info to peers
+    // Broadcast current state approximately once in 50ms
+    if (timestamp - this.lastBroadcast >= BROADCAST_PERIOD) {
+      this.broadcastState();
+      this.lastBroadcast = timestamp;
+    }
 
     this.lastRender = timestamp;
     window.requestAnimationFrame(timestamp => this.gameLoop(timestamp));
@@ -205,6 +222,45 @@ export default class Game {
     this.userPlayer.draw();
     this.otherPlayers.forEach(player => player.draw());
     this.ball.draw();
+  }
 
+  broadcastState() {
+    this.peers.forEach(peer => {
+      if (!peer.dataChannel) return;
+
+      const payload = {
+        id: this.userId,
+        b: {
+          x: this.ball.x.toFixed(2),
+          y: this.ball.y.toFixed(2),
+          vx: this.ball.vx.toFixed(2),
+          vy: this.ball.vy.toFixed(2)
+        },
+        p: {
+          x: this.userPlayer.x.toFixed(2),
+          y: this.userPlayer.y.toFixed(2),
+          vx: this.userPlayer.vx.toFixed(2),
+          vy: this.userPlayer.vy.toFixed(2)
+        }
+      };
+      peer.dataChannel.send(JSON.stringify(payload));
+    });
+  }
+
+  onMessageReceived(event: any) {
+    const payload = JSON.parse(event.data);
+
+    const player = this.otherPlayers.get(payload.id);
+    if (!player) return;
+
+    // Update player position
+    const {x, y, vx, vy} = payload.p;
+    player.x = parseFloat(x);
+    player.y = parseFloat(y);
+    player.vx = parseFloat(vx);
+    player.vy = parseFloat(vy);
+
+    // Merge ball info
+    this.ball.merge(payload.b);
   }
 }

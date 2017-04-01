@@ -27,6 +27,7 @@ declare class RTCIceCandidate {
 declare class RTCDataChannel {
   close(): void;
   send(data: string): void;
+  onmessage: (event: any) => void;
 }
 
 declare class RTCSessionDescription {

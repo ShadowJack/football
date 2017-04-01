@@ -24,4 +24,15 @@ describe("Ball", () => {
 
     expect(ball.vx).toEqual(0);
   });
+
+  it("merges with external info", () => {
+    let ball = new Ball(100, 100);
+
+    ball.merge({ x: 0, y: 50, vx: 10, vy: 10 });
+
+    expect(ball.x).toEqual(50);
+    expect(ball.y).toEqual(75);
+    expect(ball.vx).toEqual(5);
+    expect(ball.vy).toEqual(5);
+  })
 });

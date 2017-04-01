@@ -70,4 +70,11 @@ export default class Ball extends MotileRoundObject {
 
     return {position, speed};
   }
+
+  merge({x, y, vx, vy}: any) {
+    this.x = (this.x + parseFloat(x)) / 2;
+    this.y = (this.y + parseFloat(y)) / 2;
+    this.vx = (this.vx + parseFloat(vx)) / 2;
+    this.vy = (this.vy + parseFloat(vy)) / 2;
+  }
 }
