@@ -172,15 +172,20 @@ export default class Game {
       // Other player * Field
       this.gameField.collideWithBars(player);
       this.gameField.collideWithGameBorders(player);
-      // Other player * Current player
-      player.collideWithMotileRoundObject(this.userPlayer);
       // Other player * Ball
       player.collideWithMotileRoundObject(this.ball);
+      // Other player * Current player
+      this.userPlayer.collideWithRoundObject(player);
+
+      // NOTICE: Commented out because we expect
+      // that all other players will check for collisions
+      // and send results to us
+      //
       // Other player * All rest players
-      this.otherPlayers.forEach(otherPlayer => {
-        if (otherPlayer == player) return;
-        player.collideWithMotileRoundObject(otherPlayer);
-      });
+      // this.otherPlayers.forEach(otherPlayer => {
+      //   if (otherPlayer == player) return;
+      //   player.collideWithRoundObject(otherPlayer);
+      // });
     });
 
     /// Check game events

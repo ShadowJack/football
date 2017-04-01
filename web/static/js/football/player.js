@@ -52,6 +52,17 @@ export default class Player extends MotileRoundObject {
     // and projection of this line to X axis
     const cosX = distX / distance; 
     const sinX = distY / distance;
+
+    // Place both object so that they are not intersecting
+    // 1. Calc the center of line that connects centers of
+    // both objects
+    const midX = (this.x + x) / 2;
+    const midY = (this.y + y) / 2;
+    // 2. Move both objects
+    this.x = midX + this.radius * cosX;
+    this.y = midY + this.radius * sinX;
+    otherObj.x = midX - radius * cosX;
+    otherObj.y = midY - radius * sinX;
     
     // Rotate vectors of speed so that the centers of both circles are placed on the X axis
     const rotatedThisVX = this.vx * cosX + this.vy * sinX;
@@ -67,20 +78,12 @@ export default class Player extends MotileRoundObject {
     otherObj.vx = newRotatedObjVX * cosX - rotatedObjVY * sinX;
     otherObj.vy = newRotatedObjVX * sinX + rotatedObjVY * cosX;
 
-    // Place both object so that they are not intersecting
-    // 1. Calc the center of line that connects centers of
-    // both objects
-    const midX = (this.x + x) / 2;
-    const midY = (this.y + y) / 2;
-    // 2. Move both objects
-    this.x = midX + this.radius * cosX;
-    this.y = midY + this.radius * sinX;
-    otherObj.x = midX - radius * cosX;
-    otherObj.y = midY - radius * sinX;
- 
     return otherObj;
   }
 
+  collideWithPlayer(otherPlayer: Player) {
+
+  }
 
 
   handleNavigationEvent({type, direction}: NavigationEvent): void {
