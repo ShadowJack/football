@@ -7,7 +7,7 @@ import NavigationEvent from "./navigation_event";
 import Ball from "./ball";
 
 const GAME_TIME_NORM = 16;
-const GAME_TIME_TOTAL_SECONDS = 60 * 6;
+const GAME_TIME_TOTAL_SECONDS = 60 * 6; // 6 minutes
 const BROADCAST_PERIOD = 50;
 
 export default class Game {
@@ -22,6 +22,7 @@ export default class Game {
 
   canvas: HTMLCanvasElement;
   lastRender: number;
+  animationRequestId: number;
   lastBroadcast: number;
 
   peers: Array<Peer>;
@@ -102,7 +103,7 @@ export default class Game {
     this.gameTimer = 0;
     $("#GameTimer").show();
 
-    window.requestAnimationFrame(timestamp => this.gameLoop(timestamp));
+    this.animationRequestId = window.requestAnimationFrame(timestamp => this.gameLoop(timestamp));
     return;
   }
 
@@ -130,24 +131,29 @@ export default class Game {
       this.gameTimer += millisecondsSinceLastRender;
     }
 
-    this.updateState(millisecondsSinceLastRender);
+    this.updatePositions(millisecondsSinceLastRender);
+
+    this.checkGameEvents();
 
     this.redraw();
 
-    // Broadcast current state approximately once in 50ms
-    if (timestamp - this.lastBroadcast >= BROADCAST_PERIOD) {
-      this.broadcastState();
-      this.lastBroadcast = timestamp;
-    }
+    this.broadcastState(timestamp);
 
     this.lastRender = timestamp;
-    window.requestAnimationFrame(timestamp => this.gameLoop(timestamp));
+
+    // Check if game time is out
+    if (this.gameTimer / 1000 >= GAME_TIME_TOTAL_SECONDS) {
+      window.cancelAnimationFrame(this.animationRequestId);
+      this.showInfoMessage("Time has run out");
+    } else {
+      this.animationRequestId = window.requestAnimationFrame(timestamp => this.gameLoop(timestamp));
+    }
   }
 
   ///
   // Update game state based on the time passed
   // since the last update
-  updateState(millisecondsSinceLastRender: number) {
+  updatePositions(millisecondsSinceLastRender: number) {
     // Normalize time in the game
     let time = millisecondsSinceLastRender / GAME_TIME_NORM;
 
@@ -176,19 +182,11 @@ export default class Game {
       player.collideWithMotileRoundObject(this.ball);
       // Other player * Current player
       this.userPlayer.collideWithRoundObject(player);
-
-      // NOTICE: Commented out because we expect
-      // that all other players will check for collisions
-      // and send results to us
-      //
-      // Other player * All rest players
-      // this.otherPlayers.forEach(otherPlayer => {
-      //   if (otherPlayer == player) return;
-      //   player.collideWithRoundObject(otherPlayer);
-      // });
     });
 
-    /// Check game events
+  }
+
+  checkGameEvents() {
     // Check if the goal is scored
     const teamScored = this.gameField.isGoalScored(this.ball);
     if (teamScored != null) {
@@ -200,19 +198,6 @@ export default class Game {
       this.ball.reset();
       this.userPlayer.reset();
       this.otherPlayers.forEach(p => p.reset());
-    }
-
-    // Check if game time is out
-    if (this.gameTimer / 1000 >= GAME_TIME_TOTAL_SECONDS) {
-      this.showInfoMessage("Time has run out");
-    }
-  }
-
-  showInfoMessage(text: string, duration: number = 0) {
-    $("#InfoMessage").html(text);
-    $("#InfoMessage").show();
-    if (duration) {
-      setTimeout(() => $("#InfoMessage").hide(), 1000);
     }
   }
 
@@ -229,10 +214,21 @@ export default class Game {
     this.ball.draw();
   }
 
-  broadcastState() {
-    this.peers.forEach(peer => {
-      if (!peer.dataChannel) return;
+  showInfoMessage(text: string, duration: number = 0) {
+    $("#InfoMessage").html(text);
+    $("#InfoMessage").show();
+    if (duration) {
+      setTimeout(() => $("#InfoMessage").hide(), 1000);
+    }
+  }
 
+  // Periodically broadcast current game state
+  broadcastState(timestamp: number) {
+    if (timestamp - this.lastBroadcast < BROADCAST_PERIOD) return;
+
+    this.lastBroadcast = timestamp;
+
+    this.peers.forEach(peer => {
       const payload = {
         id: this.userId,
         b: {
@@ -248,6 +244,8 @@ export default class Game {
           vy: this.userPlayer.vy.toFixed(2)
         }
       };
+
+      if (!peer.dataChannel) return;
       peer.dataChannel.send(JSON.stringify(payload));
     });
   }
