@@ -6,7 +6,7 @@ import Ball from "./ball";
 import Team from "./team"
 
 // Absolute maximum speed for the player
-const MAX_SPEED = 1.7;
+const MAX_SPEED = 2;
 
 const PLAYER_MASS = 1;
 const PLAYER_RADIUS = 16;
@@ -38,6 +38,7 @@ export default class Player extends MotileRoundObject {
   // of other object according to their momentums.
   collideWithMotileRoundObject(otherObj: MotileRoundObject): MotileRoundObject {
     if (!this.isCollidingWithRoundObject(otherObj)) {
+      this.updateSpeed(); // Reset current speed if no collision is detected
       return otherObj;
     }
 
@@ -75,16 +76,13 @@ export default class Player extends MotileRoundObject {
     const newRotatedObjVX = rotatedThisVX + newRotatedThisVX - rotatedObjVX;
 
     // Rotate speeds back
+    this.vx = newRotatedThisVX * cosX - rotatedThisVY * sinX;
+    this.vy = newRotatedThisVX * sinX + rotatedThisVY * cosX;
     otherObj.vx = newRotatedObjVX * cosX - rotatedObjVY * sinX;
     otherObj.vy = newRotatedObjVX * sinX + rotatedObjVY * cosX;
 
     return otherObj;
   }
-
-  collideWithPlayer(otherPlayer: Player) {
-
-  }
-
 
   handleNavigationEvent({type, direction}: NavigationEvent): void {
     this.keysPressed[direction] = type === NavigationEvent.PRESSED;
